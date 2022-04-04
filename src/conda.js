@@ -37,10 +37,11 @@ async function setupConda() {
     );
     exec("bash ./conda.sh -b -p ~/.conda && rm -f ./conda.sh", "Install conda");
     exec("conda config --add pkgs_dirs ~/conda_pkgs_dir");
-    exec("conda install pip");
-    // TODO: Install a stable version from `pip`
-    exec("pip install git+https://github.com/showyourwork/showyourwork.git@main#egg=showyourwork");
+    exec("conda install -y pip");
   }
+
+  // TODO: Install the latest version from `pip` here
+  exec("pip install -U git+https://github.com/showyourwork/showyourwork.git@main#egg=showyourwork");
 
   // Display some info
   exec("conda info", "Conda info");
