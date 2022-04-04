@@ -13,7 +13,7 @@ const CONDA_CACHE_NUMBER = core.getInput("conda-cache-number");
 const RUNNER_OS = shell.env["RUNNER_OS"];
 const conda_key = `conda-${constants.conda_cache_version}-${RUNNER_OS}-${CONDA_CACHE_NUMBER}`;
 const conda_restoreKeys = [];
-const conda_paths = ["~/.conda", "~/.condarc", "~/conda_pkgs_dir", "sywenvs"];
+const conda_paths = ["~/.conda", "~/.condarc", "~/conda_pkgs_dir"];
 
 /**
  * Setup a conda distribution or restore it from cache.
@@ -36,26 +36,14 @@ async function setupConda() {
       "Download conda"
     );
     exec("bash ./conda.sh -b -p ~/.conda && rm -f ./conda.sh", "Install conda");
-    exec(
-      ". ~/.conda/etc/profile.d/conda.sh && " +
-      "conda config --add pkgs_dirs ~/conda_pkgs_dir"
-    );
+    exec("conda config --add pkgs_dirs ~/conda_pkgs_dir");
+    exec("conda install pip");
+    // TODO: Install a stable version from `pip`
+    exec("pip install git+https://github.com/showyourwork/showyourwork.git@main#egg=showyourwork");
   }
 
   // Display some info
-  exec(". ~/.conda/etc/profile.d/conda.sh && conda info", "Conda info");
-
-  // Create environment & install snakemake
-  if (!shell.test("-d", "./sywenvs")) {
-    exec(
-      ". ~/.conda/etc/profile.d/conda.sh && conda create -y -p ./sywenvs",
-      "Create environment"
-    );
-    exec(
-      "make install_deps",
-      "Install dependencies"
-    );
-  }
+  exec("conda info", "Conda info");
 
   // Save conda cache (failure OK)
   try {

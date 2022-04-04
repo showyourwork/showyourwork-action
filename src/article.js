@@ -27,6 +27,7 @@ async function buildArticle() {
   ];
   const article_paths = [
     ".snakemake/conda",
+    "~/.showyourwork",
     "src/tex/figures"
   ];
 
@@ -37,23 +38,17 @@ async function buildArticle() {
     article_key,
     article_restoreKeys
   );
-
-  exec("make _restore_cache");
-  core.endGroup();
-
-  // Display the workflow summary
-  core.startGroup("Workflow summary");
-  exec("make summary");
+  exec("showyourwork cache --restore");
   core.endGroup();
 
   // Build the article
   core.startGroup("Build article");
-  exec("make");
+  exec("showyourwork build");
   core.endGroup();
 
   // Save article cache
   core.startGroup("Update article cache");
-  exec("make _update_cache");
+  exec("showyourwork cache --update");
   const article_cacheId = await cache.saveCache(article_paths, article_key);
   core.endGroup();
 }

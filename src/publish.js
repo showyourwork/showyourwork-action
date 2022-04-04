@@ -26,7 +26,7 @@ async function publishOutput() {
   const output = [config["ms_pdf"]];
 
   // Upload the arxiv tarball?
-  if (core.getInput("arxiv-tarball") == "true") {
+  if (core.getInput("build-tarball") == "true") {
     output.push("arxiv.tar.gz");
   }
 

@@ -20,7 +20,7 @@ const { publishLogs } = require("./logs");
     await buildArticle();
 
     // Build arxiv tarball
-    if (core.getInput("arxiv-tarball") == "true") {
+    if (core.getInput("build-tarball") == "true") {
       await buildTarball();
     }
 

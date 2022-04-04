@@ -1,3 +1,3 @@
 // Cache settings
-exports.article_cache_version = "v15";
-exports.conda_cache_version = "v7";
+exports.article_cache_version = "v0";
+exports.conda_cache_version = "v0";

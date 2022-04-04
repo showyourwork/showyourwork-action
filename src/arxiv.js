@@ -11,8 +11,8 @@ module.exports = { buildTarball };
  */
 async function buildTarball() {
 
-  core.startGroup("Build arxiv tarball");
-  exec("make arxiv");
+  core.startGroup("Build tarball");
+  exec("showyourwork tarball");
   core.endGroup();
 
 }

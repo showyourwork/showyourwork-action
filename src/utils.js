@@ -44,16 +44,15 @@ function exec_wrapper(cmd, group) {
 }
 
 /**
- * Execute a bash command in conda environment `./sywenvs`, if present.
+ * Ensure conda is setup for the shell and execute a command.
  *
  */
 function exec(cmd, group) {
   if (
-    shell.test("-f", "~/.conda/etc/profile.d/conda.sh") &&
-    shell.test("-d", "./sywenvs")
+    shell.test("-f", "~/.conda/etc/profile.d/conda.sh")
   ) {
     return exec_wrapper(
-      `. ~/.conda/etc/profile.d/conda.sh && conda activate ./sywenvs && ${cmd}`,
+      `. ~/.conda/etc/profile.d/conda.sh && ${cmd}`,
       group
     );
   } else {

@@ -21,7 +21,7 @@ inputs:
     description: "A token for access to GitHub (e.g. 'secrets.GITHUB_TOKEN')"
     required: false
     default: ${{ github.token }}
-  arxiv-tarball:
+  build-tarball:
     description: "Build a tarball for easy ArXiV submission?"
     required: false
     default: true
