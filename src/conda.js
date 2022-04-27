@@ -43,7 +43,7 @@ async function setupConda() {
   }
 
   // TODO: Install the latest version from `pip` here
-  exec("pip install -U git+https://github.com/showyourwork/showyourwork.git@main#egg=showyourwork", "Install showyourwork");
+  exec("pip install -U git+https://github.com/showyourwork/showyourwork.git@dev#egg=showyourwork", "Install showyourwork");
 
   // Display some info
   exec("conda info", "Conda info");
