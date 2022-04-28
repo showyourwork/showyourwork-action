@@ -52,7 +52,7 @@ These should be provided through `Action secrets <https://docs.github.com/en/act
 Concurrency
 -----------
 
-We recommend limiting the concurrency of **showyourwork-action** runs to one per branch. See `here <https://docs.github.com/en/actions/using-jobs/using-concurrency>`_ for details,
+We recommend limiting the concurrency of **showyourwork-action** runs to one per branch. See `the docs <https://docs.github.com/en/actions/using-jobs/using-concurrency>`_ for details,
 and check out the example below.
 
 Example usage
