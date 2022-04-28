@@ -7,7 +7,7 @@
    </a>
    <br/>
    </div>
-   <br/><br/>
+   <br/>
 
 The **showyourwork-action** runs on `GitHub Actions <https://github.com/features/actions>`_ to automatically build a `showyourwork <https://github.com/showyourwork/showyourwork>`_ article on the cloud every time changes are pushed to the remote repository. Under the hood, this action installs ``conda`` and ``showyourwork``, then runs the workflow to generate the article PDF, which it uploads to a separate branch on the remote. Importantly, everything is cached and all timestamps are preserved across builds, so this action will only re-run things that explicitly depend on the files that changed since the last time it ran.
 
