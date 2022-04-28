@@ -15,19 +15,27 @@ const conda_key = `conda-${constants.conda_cache_version}-${RUNNER_OS}-${CONDA_C
 const conda_restoreKeys = [];
 const conda_paths = ["~/.conda", "~/.condarc", "~/conda_pkgs_dir"];
 
+// We'll cache the article unless the user set the cache number to `null` (or empty).
+const CACHE_CONDA = (
+  !(CONDA_CACHE_NUMBER == null || CONDA_CACHE_NUMBER == "")
+);
+
 /**
  * Setup a conda distribution or restore it from cache.
  *
  */
 async function setupConda() {
-  // Restore conda cache
-  core.startGroup("Restore conda cache");
-  const conda_cacheKey = await cache.restoreCache(
-    conda_paths,
-    conda_key,
-    conda_restoreKeys
-  );
-  core.endGroup();
+
+  if (CACHE_CONDA) {
+    // Restore conda cache
+    core.startGroup("Restore conda cache");
+    const conda_cacheKey = await cache.restoreCache(
+      conda_paths,
+      conda_key,
+      conda_restoreKeys
+    );
+    core.endGroup();
+  }
 
   // Download and setup conda
   if (!shell.test("-d", "~/.conda")) {
@@ -49,11 +57,13 @@ async function setupConda() {
   exec("conda info", "Conda info");
 
   // Save conda cache (failure OK)
-  try {
-    core.startGroup("Update conda cache");
-    const conda_cacheId = await cache.saveCache(conda_paths, conda_key);
-    core.endGroup();
-  } catch (error) {
-    shell.echo(`WARNING: ${error.message}`);
+  if (CACHE_CONDA) {
+    try {
+      core.startGroup("Update conda cache");
+      const conda_cacheId = await cache.saveCache(conda_paths, conda_key);
+      core.endGroup();
+    } catch (error) {
+      shell.echo(`WARNING: ${error.message}`);
+    }
   }
 }

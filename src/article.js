@@ -14,7 +14,7 @@ module.exports = { buildArticle };
  */
 async function buildArticle() {
   // Article cache settings. We only cache the contents of 
-  // `.snakemake`, `.showyourwork`, and `src/tex/figures`.
+  // `.snakemake/conda`, `${HOME}/.showyourwork`, and `src/tex/figures`.
   // Note that the GITHUB_REF (branch) is part of the cache key
   // so we don't mix up the caches for different branches!
   const ARTICLE_CACHE_NUMBER = core.getInput("article-cache-number");
@@ -31,15 +31,22 @@ async function buildArticle() {
     "src/tex/figures"
   ];
 
-  // Restore the article cache
-  core.startGroup("Restore article cache");
-  const article_cacheKey = await cache.restoreCache(
-    article_paths,
-    article_key,
-    article_restoreKeys
+  // We'll cache the article unless the user set the cache number to `null` (or empty).
+  const CACHE_ARTICLE = (
+    !(ARTICLE_CACHE_NUMBER == null || ARTICLE_CACHE_NUMBER == "")
   );
-  exec("showyourwork cache --restore");
-  core.endGroup();
+
+  // Restore the article cache
+  if (CACHE_ARTICLE) {
+    core.startGroup("Restore article cache");
+    const article_cacheKey = await cache.restoreCache(
+      article_paths,
+      article_key,
+      article_restoreKeys
+    );
+    exec("showyourwork cache --restore");
+    core.endGroup();
+  }
 
   // Build the article
   core.startGroup("Build article");
@@ -47,8 +54,10 @@ async function buildArticle() {
   core.endGroup();
 
   // Save article cache
-  core.startGroup("Update article cache");
-  exec("showyourwork cache --update");
-  const article_cacheId = await cache.saveCache(article_paths, article_key);
-  core.endGroup();
+  if (CACHE_ARTICLE) {
+    core.startGroup("Update article cache");
+    exec("showyourwork cache --update");
+    const article_cacheId = await cache.saveCache(article_paths, article_key);
+    core.endGroup();
+  }
 }
