@@ -42,8 +42,8 @@ async function setupConda() {
     core.endGroup();
   }
 
-  // TODO: Install the latest version from `pip` here
-  exec("pip install -U git+https://github.com/showyourwork/showyourwork.git@dev#egg=showyourwork", "Install showyourwork");
+  // Always install the latest version of showyourwork
+  exec("pip install -U showyourwork", "Install showyourwork");
 
   // Display some info
   exec("conda info", "Conda info");
