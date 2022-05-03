@@ -44,7 +44,7 @@ async function buildArticle() {
       article_key,
       article_restoreKeys
     );
-    exec("showyourwork cache --restore");
+    exec("showyourwork cache restore");
     core.endGroup();
   }
 
@@ -56,7 +56,7 @@ async function buildArticle() {
   // Save article cache
   if (CACHE_ARTICLE) {
     core.startGroup("Update article cache");
-    exec("showyourwork cache --update");
+    exec("showyourwork cache update");
     const article_cacheId = await cache.saveCache(article_paths, article_key);
     core.endGroup();
   }
