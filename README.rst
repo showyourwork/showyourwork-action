@@ -85,5 +85,6 @@ Below is a complete example of a ``.github/workflows/build.yml`` file.
           uses: showyourwork/showyourwork-action@v1
           env:
             ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+            SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
             OVERLEAF_EMAIL: ${{ secrets.OVERLEAF_EMAIL }}
             OVERLEAF_PASSWORD: ${{ secrets.OVERLEAF_PASSWORD }}
