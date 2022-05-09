@@ -16,6 +16,7 @@ const { publishLogs } = require("./logs");
     // DEBUG
     shell.exec("echo DEBUG");
     shell.exec('echo $REPO_NAME');
+    shell.exec('git remote get-url origin');
     shell.exec("echo DEBUG");
     // DEBUG
 
