@@ -13,6 +13,13 @@ const { publishLogs } = require("./logs");
     // Exit on failure
     shell.set("-e");
 
+    // DEBUG
+    shell.exec("echo DEBUG");
+    shell.exec("echo '${{ toJSON(github) }}'");
+    shell.exec("echo ${{ toJSON(github) }}");
+    shell.exec("echo DEBUG");
+    // DEBUG
+
     // Setup conda or restore from cache
     await setupConda();
 

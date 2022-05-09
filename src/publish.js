@@ -19,11 +19,8 @@ if (EVENT_NAME == 'pull_request') {
   // to `pull-request-<number>-pdf` on the author's repo
   GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
 
-  // DEBUG@@@@
-  shell.echo("DEBUG");
-  shell.echo("${{github.event.pull_request.head.repo.full_name}}");
-  shell.echo("DEBUG");
-
+  // TODO: GRAB SLUG FROM github.event.pull_request.head.repo.full_name
+  
   const PULL_REQUEST_NUMBER = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `pull-request-${PULL_REQUEST_NUMBER}-pdf`;
 
