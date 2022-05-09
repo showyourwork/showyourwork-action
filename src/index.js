@@ -15,8 +15,8 @@ const { publishLogs } = require("./logs");
 
     // DEBUG
     shell.exec("echo DEBUG");
-    shell.exec("echo '${{ toJSON(github) }}'");
-    shell.exec("echo ${{ toJSON(github) }}");
+    shell.exec("echo '${{ github.event.pull_request.head.repo.full_name }}'");
+    shell.exec("echo ${{ github.event.pull_request.head.repo.full_name }}");
     shell.exec("echo DEBUG");
     // DEBUG
 
