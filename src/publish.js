@@ -1,33 +1,38 @@
 // Imports
 const core = require("@actions/core");
 const shell = require("shelljs");
-const github = require('@actions/github');
 
 // Exports
 module.exports = { publishOutput };
 
 // Get repo info
 var GITHUB_SLUG;
-var GITHUB_BRANCH;
 var TARGET_BRANCH;
+const EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
 const GITHUB_TOKEN = core.getInput("github-token");
 const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
+const GITHUB_REF = shell.env["GITHUB_REF"];
 const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
-if (github.event_name == 'pull_request') {
+if (EVENT_NAME == 'pull_request') {
 
   // This is a pull request, so we'll force-push the output
   // to `pull-request-<number>-pdf` on the author's repo
-  GITHUB_SLUG = github.event.pull_request.head.repo.full_name;
-  TARGET_BRANCH = `pull-request-${github.event.pull_request.number}-pdf`;
+  GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
+
+  // DEBUG@@@@
+  shell.echo("DEBUG");
+  shell.echo("${{github.event.pull_request.head.repo.full_name}}");
+  shell.echo("DEBUG");
+
+  const PULL_REQUEST_NUMBER = GITHUB_REF.split("/")[2];
+  TARGET_BRANCH = `pull-request-${PULL_REQUEST_NUMBER}-pdf`;
 
 } else {
 
   // Not a pull request, so we'll force-push the output
   // to `<branch_name>-pdf` on the same repo
-  GITHUB_SLUG = github.repository;
-  GITHUB_BRANCH = shell
-    .exec("echo ${GITHUB_REF##*/}", {silent: true})
-    .replace(/(\r\n|\n|\r)/gm, "");
+  GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
+  const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
 
 }
