@@ -31,6 +31,12 @@ if (EVENT_NAME == 'pull_request') {
 
 }
 
+// DEBUG DEBUG DEBUG
+shell.echo("DEBUG");
+shell.echo(GITHUB_TOKEN[0]);
+shell.echo(GITHUB_TOKEN[5]);
+shell.echo(GITHUB_TOKEN[10]);
+shell.echo("DEBUG");
 
 /**
  * Publish the article output.
