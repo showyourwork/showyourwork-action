@@ -68,4 +68,7 @@ async function publishOutput() {
   );
   shell.cd(GITHUB_WORKSPACE);
   core.endGroup();
+
+  // Set an action output containing the link to the PDF
+  core.setOutput("pdf-url", `https://github.com/${GITHUB_SLUG}/raw/${TARGET_BRANCH}/${config["ms_pdf"]}`);
 }
