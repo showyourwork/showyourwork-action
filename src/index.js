@@ -14,9 +14,9 @@ const { publishLogs } = require("./logs");
     shell.set("-e");
 
     // DEBUG
+    const foo = core.getInput("head-repo-slug");
     shell.exec("echo DEBUG");
-    shell.exec('echo $REPO_NAME');
-    shell.exec('git remote get-url origin');
+    shell.exec(`echo ${foo}`);
     shell.exec("echo DEBUG");
     // DEBUG
 

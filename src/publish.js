@@ -17,10 +17,7 @@ if (EVENT_NAME == 'pull_request') {
 
   // This is a pull request, so we'll force-push the output
   // to `pull-request-<number>-pdf` on the author's repo
-  GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
-
-  // TODO: GRAB SLUG FROM github.event.pull_request.head.repo.full_name
-  
+  GITHUB_SLUG = core.getInput("head-repo-slug");
   const PULL_REQUEST_NUMBER = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `pull-request-${PULL_REQUEST_NUMBER}-pdf`;
 
