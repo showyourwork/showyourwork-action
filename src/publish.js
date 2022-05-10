@@ -39,22 +39,17 @@ async function publishOutput() {
   const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
   const GITHUB_REF = shell.env["GITHUB_REF"];
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
-
-  // DEBUG
-  shell.echo("DEBUG");
-  shell.echo(`${GITHUB_EVENT_NAME}`);
-  shell.echo("DEBUG");
-
   const GITHUB_TOKEN = core.getInput("github-token");
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
-  const GITHUB_BRANCH_OR_PR_NUMBER = GITHUB_REF.split("/")[2];
+  const GITHUB_PR_NUMBER = shell.env["PULL_REQUEST_NUMBER"];
+  const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
   const TARGET_DIRECTORY = shell
     .exec("mktemp -d")
     .replace(/(\r\n|\n|\r)/gm, "");
   const TARGET_BRANCH = 
-    (GITHUB_EVENT_NAME == 'pull_request') ? 
-    `pull-request-${GITHUB_BRANCH_OR_PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}` : 
-    `${GITHUB_BRANCH_OR_PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}`;
+    (GITHUB_EVENT_NAME == 'pull_request_target') ? 
+    `pull-request-${GITHUB_PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}` : 
+    `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
   shell.cp("-R", ".", `${TARGET_DIRECTORY}`);
   shell.cd(`${TARGET_DIRECTORY}`);
   shell.exec(`git checkout --orphan ${TARGET_BRANCH}`);
