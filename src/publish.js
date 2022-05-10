@@ -28,7 +28,7 @@ async function publishOutput() {
   const uploadResponse = await artifactClient.uploadArtifact(
     "showyourwork-output", 
     output, 
-    ".", 1
+    ".",
     {
       continueOnError: false
     }
