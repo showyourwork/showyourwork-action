@@ -28,7 +28,7 @@ async function publishOutput() {
   const uploadResponse = await artifactClient.uploadArtifact(
     "showyourwork-output", 
     output, 
-    ".", 
+    ".", 1
     {
       continueOnError: false
     }
@@ -39,6 +39,12 @@ async function publishOutput() {
   const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
   const GITHUB_REF = shell.env["GITHUB_REF"];
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
+
+  // DEBUG
+  shell.echo("DEBUG");
+  shell.echo(`${GITHUB_EVENT_NAME}`);
+  shell.echo("DEBUG");
+
   const GITHUB_TOKEN = core.getInput("github-token");
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
   const GITHUB_BRANCH_OR_PR_NUMBER = GITHUB_REF.split("/")[2];
