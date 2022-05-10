@@ -8,8 +8,8 @@ module.exports = { publishOutput };
 // Get repo info
 var GITHUB_SLUG;
 var TARGET_BRANCH;
+var GITHUB_TOKEN;
 const EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
-const GITHUB_TOKEN = core.getInput("github-token");
 const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
 const GITHUB_REF = shell.env["GITHUB_REF"];
 const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
@@ -20,6 +20,7 @@ if (EVENT_NAME == 'pull_request') {
   GITHUB_SLUG = core.getInput("head-repo-slug");
   const PULL_REQUEST_NUMBER = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `pull-request-${PULL_REQUEST_NUMBER}-pdf`;
+  GITHUB_TOKEN = core.getInput("pr-token"); // todo; if same repo, use github-token
 
 } else {
 
@@ -28,6 +29,7 @@ if (EVENT_NAME == 'pull_request') {
   GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
   const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
+  GITHUB_TOKEN = core.getInput("github-token");
 
 }
 
