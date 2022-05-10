@@ -6,9 +6,10 @@ const shell = require("shelljs");
 module.exports = { publishOutput };
 
 // Get repo info
-var GITHUB_SLUG;
+
 var TARGET_BRANCH;
-var GITHUB_TOKEN;
+const GITHUB_TOKEN = core.getInput("github-token");
+const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
 const EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
 const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
 const GITHUB_REF = shell.env["GITHUB_REF"];
@@ -16,20 +17,17 @@ const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
 if (EVENT_NAME == 'pull_request') {
 
   // This is a pull request, so we'll force-push the output
-  // to `pull-request-<number>-pdf` on the author's repo
-  GITHUB_SLUG = core.getInput("head-repo-slug");
+  // to `pull-request-<number>-pdf`
   const PULL_REQUEST_NUMBER = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `pull-request-${PULL_REQUEST_NUMBER}-pdf`;
-  GITHUB_TOKEN = core.getInput("pr-token"); // todo; if same repo, use github-token
 
 } else {
 
   // Not a pull request, so we'll force-push the output
-  // to `<branch_name>-pdf` on the same repo
-  GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
+  // to `<branch_name>-pdf`
   const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
   TARGET_BRANCH = `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
-  GITHUB_TOKEN = core.getInput("github-token");
+  
 
 }
 

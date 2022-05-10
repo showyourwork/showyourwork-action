@@ -25,10 +25,6 @@ inputs:
     description: "Build a tarball for easy ArXiV submission?"
     required: false
     default: true
-  head-repo-slug: 
-    description: "Head repository slug. No need to set this (inferred automatically)."
-    required: false
-    default: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
 branding:
   icon: "book-open"
   color: "red"
