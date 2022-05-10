@@ -14,6 +14,7 @@ module.exports = { publishOutput };
 async function publishOutput() {
 
   // Infer the manuscript name
+  const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const config = require(`${GITHUB_WORKSPACE}/.showyourwork/config.json`);
   const output = [config["ms_pdf"]];
 
@@ -36,7 +37,6 @@ async function publishOutput() {
   // Force-push output to a separate branch
   core.startGroup("Uploading output");
   const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
-  const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const GITHUB_REF = shell.env["GITHUB_REF"];
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
   const GITHUB_TOKEN = core.getInput("github-token");
