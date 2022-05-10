@@ -13,13 +13,6 @@ const { publishLogs } = require("./logs");
     // Exit on failure
     shell.set("-e");
 
-    // DEBUG
-    const foo = core.getInput("head-repo-slug");
-    shell.exec("echo DEBUG");
-    shell.exec(`echo ${foo}`);
-    shell.exec("echo DEBUG");
-    // DEBUG
-
     // Setup conda or restore from cache
     await setupConda();
 
