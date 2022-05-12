@@ -71,4 +71,6 @@ async function publishOutput() {
 
   // Set an action output containing the link to the PDF
   core.setOutput("pdf-url", `https://github.com/${GITHUB_SLUG}/raw/${TARGET_BRANCH}/${config["ms_pdf"]}`);
+  core.setOutput("output-branch", TARGET_BRANCH);
+  core.setOutput("output-branch-url", `https://github.com/${GITHUB_SLUG}/tree/${TARGET_BRANCH}`);
 }
