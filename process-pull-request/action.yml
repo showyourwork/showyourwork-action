@@ -1,0 +1,109 @@
+name: "showyourwork"
+author: "Rodrigo Luger"
+description: "Build reproducible scientific articles"
+inputs:
+  github-token:
+    description: "A token for access to GitHub (e.g. 'secrets.GITHUB_TOKEN')"
+    required: false
+    default: ${{ github.token }}
+runs:
+  using: "composite"
+  steps:
+    - name: Download artifact
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.payload.workflow_run.id,
+          });
+          let matchArtifact = allArtifacts.data.artifacts.filter((artifact) => {
+            return artifact.name == "showyourwork-output"
+          })[0];
+          let download = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              artifact_id: matchArtifact.id,
+              archive_format: 'zip',
+          });
+          let fs = require('fs');
+          fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/showyourwork-output.zip`, Buffer.from(download.data));
+
+    - name: Unzip artifact
+      run: unzip showyourwork-output.zip
+
+    - name: Get PR number
+      id: get-pr-number
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let fs = require('fs');
+          return Number(fs.readFileSync('./pr_number.txt', 'utf8'));
+        result-encoding: string
+
+    - name: Get branch suffix
+      id: get-branch-suffix
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let fs = require('fs');
+          return fs.readFileSync('./branch_suffix.txt', 'utf8').replace(/\n/g, "");
+        result-encoding: string
+
+    - name: Get PDF file name
+      id: get-pdf-name
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let fs = require('fs');
+          return fs.readFileSync('./article_pdf.txt', 'utf8').replace(/\n/g, "");
+        result-encoding: string
+
+    - name: Get output file names
+      id: get-file-names
+      uses: actions/github-script@v6
+      with:
+        script: |
+          let fs = require('fs');
+          return fs.readFileSync('./output.txt', 'utf8').replace(/\n/g, " ");
+        result-encoding: string
+
+    - name: Upload output
+      shell: bash -l {0}
+      env:
+        TARGET_BRANCH: pull-request-${{ steps.get-pr-number.outputs.result }}-${{ steps.get-branch-suffix.outputs.result }}
+        PATHS: ${{ steps.get-file-names.outputs.result }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        git init
+        git checkout --orphan ${TARGET_BRANCH}
+        git add -f ${PATHS}
+        git -c user.name='gh-actions' -c user.email='gh-actions' commit -m "auto commit from showyourwork"
+        git push --force https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY} ${TARGET_BRANCH}
+
+    - name: Comment on PR
+      uses: actions/github-script@v6
+      env:
+        BRANCH_SUFFIX: ${{ steps.get-branch-suffix.outputs.result }}
+        PDF_NAME: ${{ steps.get-pdf-name.outputs.result }}
+        HTML_URL: ${{ github.event.workflow_run.repository.html_url }}
+      with:
+        script: |
+          let branchSuffix = process.env.BRANCH_SUFFIX;
+          let pdfName = process.env.PDF_NAME;
+          let htmlURL = process.env.HTML_URL;
+          let prNumber = ${{ steps.get-pr-number.outputs.result }};
+          let outputBranch = `pull-request-${prNumber}-${branchSuffix}`;
+          let pdfURL = `${htmlURL}/raw/${outputBranch}/${pdfName}`;
+          let branchURL = `${htmlURL}/tree/${outputBranch}`;
+          let body = 
+            `Here is the compiled [article PDF](${pdfURL}) for the latest ` +
+            `commit. You can find additional build output at ` +
+            `[${outputBranch}](${branchURL}).`;
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+            body: body
+          });
