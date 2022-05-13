@@ -2,7 +2,7 @@
 const shell = require("shelljs");
 const utils = require("./utils");
 const github = require("@actions/github");
-const github = require("@actions/core");
+const core = require("@actions/core");
 const { build } = require("./build");
 
 (async () => {
