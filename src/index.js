@@ -1,77 +1,44 @@
 // Imports
-const core = require("@actions/core");
 const shell = require("shelljs");
-const { setupConda } = require("./conda");
-const { buildArticle } = require("./article");
-const { buildTarball } = require("./arxiv");
-const { publishOutput } = require("./publish");
-const { publishLogs } = require("./logs");
 const utils = require("./utils");
+const github = require("@actions/github");
+const { build } = require("./build");
 
 (async () => {
-
-  // DEBUG!
-
-  // Exit on failure
+  // Always exit on failure
   shell.set("-e");
 
-  // Create the `safe to test` label if it doesn't exist
-  await utils.createSafeToTestLabel()
-
-  const github = require("@actions/github");
+  // What we do depends on what triggered this build
   const payload = github.context.payload;
-  if (github.context.eventName == "pull_request_target") {
+  const eventName = github.context.eventName;
+  if (eventName == "pull_request_target") {
     if (payload.action == "opened") {
-      if (payload.pull_request.head.repo.full_name == payload.pull_request.base.repo.full_name) {
-        // pass
+      if (
+        payload.pull_request.head.repo.full_name ==
+        payload.pull_request.base.repo.full_name
+      ) {
+        // The PR originates from the same repository, so we
+        // don't need to worry about potential exploits
+        await build();
       } else {
-        utils.createPullRequestInstructionsComment();
+        // This is a new pull request. We won't do anything except
+        // post a comment explaining that maintaners must review
+        // the PR and add the `safe to test` label if it's deemed
+        // safe to build on GH Actions. We'll also create (but not add)
+        // the `safe to test` label.
+        await utils.createSafeToTestLabel();
+        await utils.createPullRequestInstructionsComment();
       }
-    }
-  }
+    } else if (eventName == "labeled") {
+      
+      // DEBUG
+      shell.echo(JSON.stringify(payload));
 
-  
+    }
+  } else {
+    // This is not a `pull_request_target`, so we can just build as usual
+    await build();
+  }
 
   //shell.echo(JSON.stringify(payload));
-
-
-  return;
-
-
-  try {
-    
-    // Exit on failure
-    shell.set("-e");
-
-    // Setup conda or restore from cache
-    await setupConda();
-
-    // Build the article
-    await buildArticle();
-
-    // Build arxiv tarball
-    if (core.getInput("build-tarball") == "true") {
-      await buildTarball();
-    }
-
-    // Publish the article output
-    await publishOutput();
-
-    // Publish the logs
-    await publishLogs();
-
-  } catch (error) {
-
-    // Publish the logs
-    try {
-      await publishLogs();
-    } catch (error) {
-      core.error("Unable to upload the build logs.");
-      core.setFailed(error.message);
-    }
-
-    // Exit gracefully
-    core.setFailed(error.message);
-
-  }
 })();

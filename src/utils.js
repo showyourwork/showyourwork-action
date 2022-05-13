@@ -4,7 +4,14 @@ const core = require("@actions/core");
 const shell = require("shelljs");
 
 // Exports
-module.exports = { makeId, exec, getInputAsArray, createSafeToTestLabel, createPullRequestInstructionsComment };
+module.exports = {
+  makeId,
+  exec,
+  getInputAsArray,
+  createSafeToTestLabel,
+  createPullRequestInstructionsComment,
+  removeSafeToTestLabel,
+};
 
 /**
  * Generate a random hash.
@@ -94,7 +101,7 @@ async function createSafeToTestLabel() {
 }
 
 /**
- *
+ * Add a comment to the PR with instructions for the maintainers
  *
  */
 async function createPullRequestInstructionsComment() {
@@ -113,7 +120,7 @@ async function createPullRequestInstructionsComment() {
     "GitHub Actions are granted access to all repository secrets, including " +
     "the ``GITHUB_TOKEN``, which enables write access to this repository. " +
     "You can read more about potential exploits " +
-    "[here](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/)." +
+    "[here](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/). " +
     "If the pull request is deemed safe, you can trigger a build by adding " +
     "the ``safe to test`` label. If the build completes successfully, a link " +
     "to the article PDF will be posted below. Note that if the pull request " +
@@ -123,6 +130,23 @@ async function createPullRequestInstructionsComment() {
     owner: context.repo.owner,
     repo: context.repo.repo,
     issue_number: prNumber,
-    body: message
+    body: message,
+  });
+}
+
+/**
+ * Create the `safe to test` issue label.
+ *
+ */
+async function removeSafeToTestLabel() {
+  const context = github.context;
+  const token = core.getInput("github-token");
+  const octokit = github.getOctokit(token);
+  const prNumber = github.context.payload.pull_request.number;
+  await octokit.rest.issues.removeLabel({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: prNumber,
+    name: "safe to test",
   });
 }
