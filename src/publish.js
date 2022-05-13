@@ -23,57 +23,56 @@ async function publishOutput() {
     output.push("arxiv.tar.gz");
   }
 
-  // Upload an artifact
-  const artifactClient = artifact.create();
-  const uploadResponse = await artifactClient.uploadArtifact(
-    "showyourwork-output",
-    output,
-    ".",
-    {
-      continueOnError: false,
-    }
-  );
-
-  // Force-push output to a separate branch
-  const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
-  const GITHUB_REF = shell.env["GITHUB_REF"];
+  // If this is a PR, record some metadata
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
-  const GITHUB_TOKEN = core.getInput("github-token");
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
-  const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
-  const TARGET_DIRECTORY = shell
-    .exec("mktemp -d")
-    .replace(/(\r\n|\n|\r)/gm, "");
-  var TARGET_BRANCH;
   if (GITHUB_EVENT_NAME.includes("pull_request")) {
     const PR_NUMBER = github.context.payload.pull_request.number;
-    TARGET_BRANCH = `pull-request-${PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}`;
-  } else {
-    TARGET_BRANCH = `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
+    output.forEach(function (file) {
+      shell.exec(`echo ${file} >> output.txt`);
+    });
+    output.push("output.txt");
+    shell.exec(`echo ${PR_NUMBER} > pr_number.txt`);
+    output.push("pr_number.txt");
+    shell.exec(`echo ${config["ms_pdf"]} > article_pdf.txt`);
+    output.push("article_pdf.txt");
+    shell.exec(`echo ${OUTPUT_BRANCH_SUFFIX} > branch_suffix.txt`);
+    output.push("branch_suffix.txt");
   }
-  shell.cp("-R", ".", `${TARGET_DIRECTORY}`);
-  shell.cd(`${TARGET_DIRECTORY}`);
-  shell.exec(`git checkout --orphan ${TARGET_BRANCH}`);
-  shell.exec("git rm --cached -rf .", { silent: true });
-  for (const out of output) {
-    shell.exec(`git add -f ${out}`);
-  }
-  shell.exec(
-    "git -c user.name='showyourwork' -c user.email='showyourwork' " +
-      "commit -m 'force-push article output'"
-  );
-  shell.exec(
-    "git push --force " +
-      `https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_SLUG} ` +
-      `${TARGET_BRANCH}`
-  );
-  shell.cd(GITHUB_WORKSPACE);
-  core.endGroup();
 
-  // Return some metadata for later use
-  return {
-    pdf_url: `https://github.com/${GITHUB_SLUG}/raw/${TARGET_BRANCH}/${config["ms_pdf"]}`,
-    output_branch: TARGET_BRANCH,
-    output_branch_url: `https://github.com/${GITHUB_SLUG}/tree/${TARGET_BRANCH}`,
-  };
+  // Upload an artifact
+  const artifactClient = artifact.create();
+  await artifactClient.uploadArtifact("showyourwork-output", output, ".", {
+    continueOnError: false,
+  });
+
+  // Force-push output to a separate branch
+  if (!GITHUB_EVENT_NAME.includes("pull_request")) {
+    const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
+    const GITHUB_REF = shell.env["GITHUB_REF"];
+    const GITHUB_TOKEN = core.getInput("github-token");
+    const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
+    const TARGET_DIRECTORY = shell
+      .exec("mktemp -d")
+      .replace(/(\r\n|\n|\r)/gm, "");
+    const TARGET_BRANCH = `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
+    shell.cp("-R", ".", `${TARGET_DIRECTORY}`);
+    shell.cd(`${TARGET_DIRECTORY}`);
+    shell.exec(`git checkout --orphan ${TARGET_BRANCH}`);
+    shell.exec("git rm --cached -rf .", { silent: true });
+    for (const out of output) {
+      shell.exec(`git add -f ${out}`);
+    }
+    shell.exec(
+      "git -c user.name='showyourwork' -c user.email='showyourwork' " +
+        "commit -m 'force-push article output'"
+    );
+    shell.exec(
+      "git push --force " +
+        `https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_SLUG} ` +
+        `${TARGET_BRANCH}`
+    );
+    shell.cd(GITHUB_WORKSPACE);
+    core.endGroup();
+  }
 }

@@ -46,7 +46,7 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 Environment variables
 ---------------------
 
-There are a few environment variables that may be needed on the ``showyourwork`` side. These include :code:`$ZENODO_TOKEN` (a Zenodo API token that can be used to authenticate when publishing or downloading Zenodo deposits) and :code:`$OVERLEAF_EMAIL` and :code:`$OVERLEAF_PASSWORD` (credentials for accessing and modifying an Overleaf project repository).
+There are a few environment variables that may be needed on the ``showyourwork`` side. These include :code:`$SANDBOX_TOKEN` (a Zenodo Sandbox API token that can be used to authenticate when uploading or downloading files from Zenodo Sandbox deposits) and :code:`$OVERLEAF_EMAIL` and :code:`$OVERLEAF_PASSWORD` (credentials for accessing and modifying an Overleaf project repository).
 These should be provided through `Action secrets <https://docs.github.com/en/actions/security-guides/encrypted-secrets>`_ using the :code:`env:` directive (see the example below).
 
 Concurrency
@@ -54,6 +54,12 @@ Concurrency
 
 We recommend limiting the concurrency of **showyourwork-action** runs to one per branch. See `the docs <https://docs.github.com/en/actions/using-jobs/using-concurrency>`_ for details,
 and check out the example below.
+
+Pull requests
+-------------
+
+Coming soon.
+
 
 Example usage
 -------------
@@ -66,7 +72,7 @@ Below is a complete example of a ``.github/workflows/build.yml`` file.
 
   on:
     push:
-    workflow_dispatch:
+    pull_request:
 
   jobs:
     build:
@@ -74,9 +80,8 @@ Below is a complete example of a ``.github/workflows/build.yml`` file.
       name: Build the article PDF
       concurrency: showyourwork-${{ github.ref }}
       steps:
-
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             fetch-depth: 0
 
@@ -84,7 +89,6 @@ Below is a complete example of a ``.github/workflows/build.yml`` file.
           id: build
           uses: showyourwork/showyourwork-action@v1
           env:
-            ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
             SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
             OVERLEAF_EMAIL: ${{ secrets.OVERLEAF_EMAIL }}
             OVERLEAF_PASSWORD: ${{ secrets.OVERLEAF_PASSWORD }}

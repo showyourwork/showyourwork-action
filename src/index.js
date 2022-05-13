@@ -1,59 +1,46 @@
 // Imports
-const shell = require("shelljs");
-const utils = require("./utils");
-const github = require("@actions/github");
 const core = require("@actions/core");
-const { build } = require("./build");
+const { setupConda } = require("./conda");
+const { buildArticle } = require("./article");
+const { buildTarball } = require("./arxiv");
+const { publishOutput } = require("./publish");
+const { publishLogs } = require("./logs");
 
-(async () => {
-  // Always exit on failure
-  shell.set("-e");
+// Exports
+module.exports = { build };
 
+/**
+ * Build the article.
+ *
+ */
+async function build() {
   try {
-    // What we do depends on what triggered this build
-    const payload = github.context.payload;
-    const eventName = github.context.eventName;
-    if (eventName.includes("pull_request")) {
-      if (payload.action == "opened") {
-        if (
-          payload.pull_request.head.repo.full_name ==
-          payload.pull_request.base.repo.full_name
-        ) {
-          // The PR originates from the same repository, so we
-          // don't need to worry about potential exploits
-          await build();
-        } else {
-          // This is a new pull request. We won't do anything except
-          // post a comment explaining that maintaners must review
-          // the PR and add the `safe to test` label if it's deemed
-          // safe to build on GH Actions. We'll also create (but not add)
-          // the `safe to test` label.
-          core.startGroup("Comment on PR");
-          await utils.createSafeToTestLabel();
-          await utils.createPullRequestInstructionsComment();
-          core.setFailed("This PR has not yet been marked `safe to test`.");
-          core.endGroup();
-        }
-      } else if (
-        payload.action == "labeled" &&
-        payload.label.name == "safe to test"
-      ) {
-        // This PR has been marked as safe to test, so let's build it
-        core.startGroup("Remove `safe to test` label");
-        await utils.removeSafeToTestLabel();
-        core.endGroup();
-        const output_info = await build();
-        core.startGroup("Comment on PR");
-        await utils.createPullRequestPDFComment(output_info);
-        core.endGroup();
-      } else {
-        core.setFailed("This PR has not yet been marked `safe to test`.");
-      }
-    } else {
-      // This is not a `pull_request_target`, so we can just build as usual
-      await build();
+    // Setup conda or restore from cache
+    await setupConda();
+
+    // Build the article
+    await buildArticle();
+
+    // Build arxiv tarball
+    if (core.getInput("build-tarball") == "true") {
+      await buildTarball();
     }
+
+    // Publish the article output
+    await publishOutput();
+
+    // Publish the logs
+    await publishLogs();
   } catch (error) {
+    // Publish the logs
+    try {
+      await publishLogs();
+    } catch (error) {
+      core.error("Unable to upload the build logs.");
+      core.setFailed(error.message);
+    }
+
+    // Exit gracefully
     core.setFailed(error.message);
   }
-})();
+}
