@@ -32,7 +32,7 @@ const utils = require("./utils");
 
   
 
-  shell.echo(JSON.stringify(payload));
+  //shell.echo(JSON.stringify(payload));
 
 
   return;
