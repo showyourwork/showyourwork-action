@@ -2,6 +2,7 @@
 const core = require("@actions/core");
 const shell = require("shelljs");
 const artifact = require("@actions/artifact");
+const github = require("@actions/github");
 
 // Exports
 module.exports = { publishOutput };
@@ -15,6 +16,7 @@ async function publishOutput() {
   const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const config = require(`${GITHUB_WORKSPACE}/.showyourwork/config.json`);
   const output = [config["ms_pdf"]];
+  const prNumber = github.context.payload.pull_request.number;
 
   // Include the arxiv tarball?
   if (core.getInput("build-tarball") == "true") {
@@ -39,14 +41,13 @@ async function publishOutput() {
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
   const GITHUB_TOKEN = core.getInput("github-token");
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
-  const GITHUB_PR_NUMBER = shell.env["PULL_REQUEST_NUMBER"];
   const GITHUB_BRANCH = GITHUB_REF.split("/")[2];
   const TARGET_DIRECTORY = shell
     .exec("mktemp -d")
     .replace(/(\r\n|\n|\r)/gm, "");
   const TARGET_BRANCH =
     GITHUB_EVENT_NAME == "pull_request_target"
-      ? `pull-request-${GITHUB_PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}`
+      ? `pull-request-${prNumber}-${OUTPUT_BRANCH_SUFFIX}`
       : `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
   shell.cp("-R", ".", `${TARGET_DIRECTORY}`);
   shell.cd(`${TARGET_DIRECTORY}`);

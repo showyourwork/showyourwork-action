@@ -143,7 +143,7 @@ async function removeSafeToTestLabel() {
   const context = github.context;
   const token = core.getInput("github-token");
   const octokit = github.getOctokit(token);
-  const prNumber = github.context.payload.pull_request.number;
+  const prNumber = context.payload.pull_request.number;
   await octokit.rest.issues.removeLabel({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -160,7 +160,7 @@ async function createPullRequestPDFComment(output_info) {
   const context = github.context;
   const token = core.getInput("github-token");
   const octokit = github.getOctokit(token);
-  const prNumber = github.context.payload.pull_request.number;
+  const prNumber = context.payload.pull_request.number;
   const message =
     "Here is the compiled [article PDF](" +
     output_info.pdf_url +
