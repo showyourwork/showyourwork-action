@@ -169,7 +169,7 @@ async function createPullRequestPDFComment(output_info) {
     output_info.output_branch +
     "](" +
     output_info.output_branch_url +
-    ") branch.";
+    ") branch. XXXXXX DEBUG XXXXX"; // DEBUG
 
   // Search for an existing comment
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
@@ -183,6 +183,11 @@ async function createPullRequestPDFComment(output_info) {
       comment.user.login == "github-actions[bot]" &&
       comment.body.includes("Here is the compiled [article PDF]")
   );
+
+  // DEBUG
+  console.log(JSON.stringify(comment));
+  console.log(comment.id);
+  console.log(prNumber);
 
   // Post the comment
   if (comment) {

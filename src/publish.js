@@ -18,6 +18,8 @@ async function publishOutput() {
   const output = [config["ms_pdf"]];
   const prNumber = github.context.payload.pull_request.number;
 
+  core.startGroup("Uploading output");
+
   // Include the arxiv tarball?
   if (core.getInput("build-tarball") == "true") {
     output.push("arxiv.tar.gz");
@@ -35,7 +37,6 @@ async function publishOutput() {
   );
 
   // Force-push output to a separate branch
-  core.startGroup("Uploading output");
   const GITHUB_SLUG = shell.env["GITHUB_REPOSITORY"];
   const GITHUB_REF = shell.env["GITHUB_REF"];
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
