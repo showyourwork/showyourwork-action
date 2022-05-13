@@ -101,7 +101,7 @@ async function createPullRequestInstructionsComment() {
   const context = github.context;
   const token = core.getInput("github-token");
   const octokit = github.getOctokit(token);
-  const prNumber = github.context.payload.number;
+  const prNumber = github.context.payload.pull_request.number;
   const message =
     "Thank you for submitting a pull request to **" +
     context.repo.repo +

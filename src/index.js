@@ -22,7 +22,7 @@ const utils = require("./utils");
   const payload = github.context.payload;
   if (github.context.eventName == "pull_request_target") {
     if (payload.action == "opened") {
-      if (payload.head.repo.full_name == payload.base.repo.full_name) {
+      if (payload.pull_request.head.repo.full_name == payload.pull_request.base.repo.full_name) {
         // pass
       } else {
         utils.createPullRequestInstructionsComment();
