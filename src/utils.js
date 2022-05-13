@@ -161,15 +161,18 @@ async function createPullRequestPDFComment(output_info) {
   const token = core.getInput("github-token");
   const octokit = github.getOctokit(token);
   const prNumber = context.payload.pull_request.number;
+  const commitSHA = context.payload.pull_request.head.sha.slice(0, 7);
   const message =
     "Here is the compiled [article PDF](" +
     output_info.pdf_url +
     ") " +
-    "for the above commit. You can find additional build output on the [" +
+    "for commit ``" +
+    commitSHA +
+    "``. You can find additional build output on the [" +
     output_info.output_branch +
     "](" +
     output_info.output_branch_url +
-    ") branch. XXXXXX DEBUG XXXXX"; // DEBUG
+    ") branch."; // DEBUG
 
   // Search for an existing comment
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
