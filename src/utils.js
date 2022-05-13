@@ -4,7 +4,7 @@ const core = require("@actions/core");
 const shell = require("shelljs");
 
 // Exports
-module.exports = { makeId, exec, getInputAsArray };
+module.exports = { makeId, exec, getInputAsArray, createSafeToTestLabel };
 
 /**
  * Generate a random hash.
