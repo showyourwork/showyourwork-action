@@ -153,7 +153,7 @@ async function removeSafeToTestLabel() {
 }
 
 /**
- *
+ * Post a link to the compiled PDF in the PR comments.
  *
  */
 async function createPullRequestPDFComment(output_info) {
@@ -170,10 +170,35 @@ async function createPullRequestPDFComment(output_info) {
     "](" +
     output_info.output_branch_url +
     ") branch.";
-  await octokit.rest.issues.createComment({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    issue_number: prNumber,
-    body: message,
-  });
+
+  // Search for an existing comment
+  const comments = await octokit
+    .paginate(octokit.rest.issues.listComments, {
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: prNumber,
+    })
+    .reverse();
+  const comment = comments.find(
+    (comment) =>
+      comment.user.login == "github-actions[bot]" &&
+      comment.body.includes("Here is the compiled [article PDF]")
+  );
+
+  // Post the comment
+  if (comment) {
+    await octokit.rest.issues.updateComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      comment_id: comment.id,
+      body: message,
+    });
+  } else {
+    await octokit.rest.issues.createComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: prNumber,
+      body: message,
+    });
+  }
 }
