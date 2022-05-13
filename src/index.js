@@ -29,15 +29,15 @@ const { build } = require("./build");
         await utils.createSafeToTestLabel();
         await utils.createPullRequestInstructionsComment();
       }
-    } else if (eventName == "labeled") {
-      
-      // DEBUG
-      shell.echo(JSON.stringify(payload));
-
+    } else if (
+      payload.action == "labeled" &&
+      payload.label.name == "safe to test"
+    ) {
+      // This PR has been marked as safe to test, so let's build it
+      await utils.removeSafeToTestLabel();
+      const output_info = await build();
+      await utils.createPullRequestPDFComment(output_info);
     }
-
-    shell.echo(JSON.stringify(payload));
-
   } else {
     // This is not a `pull_request_target`, so we can just build as usual
     await build();

@@ -27,10 +27,13 @@ async function build() {
     }
 
     // Publish the article output
-    await publishOutput();
+    const output_info = await publishOutput();
 
     // Publish the logs
     await publishLogs();
+
+    // Return output info for PR comments
+    return output_info;
   } catch (error) {
     // Publish the logs
     try {

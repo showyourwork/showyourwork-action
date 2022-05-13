@@ -6,13 +6,11 @@ const artifact = require("@actions/artifact");
 // Exports
 module.exports = { publishOutput };
 
-
 /**
  * Publish the article output.
  *
  */
 async function publishOutput() {
-
   // Infer the manuscript name
   const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const config = require(`${GITHUB_WORKSPACE}/.showyourwork/config.json`);
@@ -26,11 +24,11 @@ async function publishOutput() {
   // Upload an artifact
   const artifactClient = artifact.create();
   const uploadResponse = await artifactClient.uploadArtifact(
-    "showyourwork-output", 
-    output, 
+    "showyourwork-output",
+    output,
     ".",
     {
-      continueOnError: false
+      continueOnError: false,
     }
   );
 
@@ -46,14 +44,14 @@ async function publishOutput() {
   const TARGET_DIRECTORY = shell
     .exec("mktemp -d")
     .replace(/(\r\n|\n|\r)/gm, "");
-  const TARGET_BRANCH = 
-    (GITHUB_EVENT_NAME == 'pull_request_target') ? 
-    `pull-request-${GITHUB_PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}` : 
-    `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
+  const TARGET_BRANCH =
+    GITHUB_EVENT_NAME == "pull_request_target"
+      ? `pull-request-${GITHUB_PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}`
+      : `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
   shell.cp("-R", ".", `${TARGET_DIRECTORY}`);
   shell.cd(`${TARGET_DIRECTORY}`);
   shell.exec(`git checkout --orphan ${TARGET_BRANCH}`);
-  shell.exec("git rm --cached -rf .", {silent: true});
+  shell.exec("git rm --cached -rf .", { silent: true });
   for (const out of output) {
     shell.exec(`git add -f ${out}`);
   }
@@ -69,8 +67,10 @@ async function publishOutput() {
   shell.cd(GITHUB_WORKSPACE);
   core.endGroup();
 
-  // Set an action output containing the link to the PDF
-  core.setOutput("pdf-url", `https://github.com/${GITHUB_SLUG}/raw/${TARGET_BRANCH}/${config["ms_pdf"]}`);
-  core.setOutput("output-branch", TARGET_BRANCH);
-  core.setOutput("output-branch-url", `https://github.com/${GITHUB_SLUG}/tree/${TARGET_BRANCH}`);
+  // Return some metadata for later use
+  return {
+    pdf_url: `https://github.com/${GITHUB_SLUG}/raw/${TARGET_BRANCH}/${config["ms_pdf"]}`,
+    output_branch: TARGET_BRANCH,
+    output_branch_url: `https://github.com/${GITHUB_SLUG}/tree/${TARGET_BRANCH}`,
+  };
 }

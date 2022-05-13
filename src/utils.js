@@ -11,6 +11,7 @@ module.exports = {
   createSafeToTestLabel,
   createPullRequestInstructionsComment,
   removeSafeToTestLabel,
+  createPullRequestPDFComment,
 };
 
 /**
@@ -148,5 +149,31 @@ async function removeSafeToTestLabel() {
     repo: context.repo.repo,
     issue_number: prNumber,
     name: "safe to test",
+  });
+}
+
+/**
+ *
+ *
+ */
+async function createPullRequestPDFComment(output_info) {
+  const context = github.context;
+  const token = core.getInput("github-token");
+  const octokit = github.getOctokit(token);
+  const prNumber = github.context.payload.pull_request.number;
+  const message =
+    "Here is the compiled [article PDF](" +
+    output_info.pdf_url +
+    ") " +
+    "for the above commit. You can find additional build output on the [" +
+    output_info.output_branch +
+    "](" +
+    output_info.output_branch_url +
+    ") branch.";
+  await octokit.rest.issues.createComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: prNumber,
+    body: message,
   });
 }
