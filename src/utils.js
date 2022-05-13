@@ -172,9 +172,9 @@ async function createPullRequestPDFComment(output_info) {
     output_info.output_branch +
     "](" +
     output_info.output_branch_url +
-    ") branch."; // DEBUG
+    ") branch.";
 
-  // Search for an existing comment
+  // Delete existing comments
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -186,26 +186,17 @@ async function createPullRequestPDFComment(output_info) {
       comment.user.login == "github-actions[bot]" &&
       comment.body.includes("Here is the compiled [article PDF]")
   );
-
-  // DEBUG
-  console.log(JSON.stringify(comment));
-  console.log(comment.id);
-  console.log(prNumber);
+  await octokit.rest.issues.deleteComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    comment_id: comment.id,
+  });
 
   // Post the comment
-  if (comment) {
-    await octokit.rest.issues.updateComment({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      comment_id: comment.id,
-      body: message,
-    });
-  } else {
-    await octokit.rest.issues.createComment({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      issue_number: prNumber,
-      body: message,
-    });
-  }
+  await octokit.rest.issues.createComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: prNumber,
+    body: message,
+  });
 }
