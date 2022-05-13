@@ -6,15 +6,11 @@ const { buildTarball } = require("./arxiv");
 const { publishOutput } = require("./publish");
 const { publishLogs } = require("./logs");
 
-// Exports
-module.exports = { build };
-
-/**
- * Build the article.
- *
- */
-async function build() {
+(async () => {
   try {
+    // Exit on failure
+    shell.set("-e");
+
     // Setup conda or restore from cache
     await setupConda();
 
@@ -43,4 +39,4 @@ async function build() {
     // Exit gracefully
     core.setFailed(error.message);
   }
-}
+})();
