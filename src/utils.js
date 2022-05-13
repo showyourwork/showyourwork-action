@@ -111,18 +111,18 @@ async function createPullRequestInstructionsComment() {
   const octokit = github.getOctokit(token);
   const prNumber = github.context.payload.pull_request.number;
   const message =
-    "😀 Thank you for submitting a pull request to **" +
+    "😀 Thank you for submitting a pull request to ``" +
     context.repo.repo +
-    "**. " +
+    "``. " +
     "For safety reasons, this pull request will only be built on GitHub " +
     "Actions after review by one of the repository maintainers.\n\n" +
     "⚠️ Maintainers, please check this pull request for potential security " +
     "hazards. Note that pull requests to this repository that are built on " +
     "GitHub Actions are granted access to the ``GITHUB_TOKEN``, which " +
-    "enables write access to this repository. Please carefully look over the" +
+    "enables write access to this repository. Please carefully look over the " +
     `[proposed changes](https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}/files) ` +
     "to ensure this value and any other secrets provided in the workflow " +
-    "(such as ``ZENODO_TOKEN`` or ``OVERLEAF_PASSWORD``) are not exposed, " +
+    "(such as the ``ZENODO_TOKEN`` or ``OVERLEAF_PASSWORD``) are not exposed, " +
     "leaked, or exploited by the PR issuer in any way. You can read more " +
     "about potential exploits on the " +
     "[GitHub](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/) " +
