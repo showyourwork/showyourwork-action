@@ -31,6 +31,7 @@ const { build } = require("./build");
           core.startGroup("Comment on PR");
           await utils.createSafeToTestLabel();
           await utils.createPullRequestInstructionsComment();
+          core.setFailed("This PR has not yet been marked `safe to test`.");
           core.endGroup();
         }
       } else if (
@@ -45,6 +46,8 @@ const { build } = require("./build");
         core.startGroup("Comment on PR");
         await utils.createPullRequestPDFComment(output_info);
         core.endGroup();
+      } else {
+        core.setFailed("This PR has not yet been marked `safe to test`.");
       }
     } else {
       // This is not a `pull_request_target`, so we can just build as usual
