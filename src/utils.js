@@ -73,17 +73,19 @@ function getInputAsArray(name) {
  *
  */
 async function createSafeToTestLabel() {
-  const [owner, repo] = shell.env["GITHUB_REPOSITORY"].split('/');
-  const labels = await github.rest.issues
+  const context = github.context;
+  const token = core.getInput('github-token');
+  const octokit = github.getOctokit(token);
+  const labels = await octokit.rest.issues
     .listLabelsForRepo({
-      owner: owner,
-      repo: repo,
+      owner: context.repo.owner,
+      repo: context.repo.repo,
     })
     .then((res) => res.data);
   if (!labels.some((e) => e.name == "safe to test")) {
-    await github.rest.issues.createLabel({
-      owner: owner,
-      repo: repo,
+    await octokit.rest.issues.createLabel({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
       name: "safe to test",
       color: "0e8a16",
       description: "PR can be tested with `pull_request_target`",
