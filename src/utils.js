@@ -1,4 +1,5 @@
 // Imports
+const github = require("@actions/github");
 const core = require("@actions/core");
 const shell = require("shelljs");
 
@@ -48,13 +49,8 @@ function exec_wrapper(cmd, group) {
  *
  */
 function exec(cmd, group) {
-  if (
-    shell.test("-f", "~/.conda/etc/profile.d/conda.sh")
-  ) {
-    return exec_wrapper(
-      `. ~/.conda/etc/profile.d/conda.sh && ${cmd}`,
-      group
-    );
+  if (shell.test("-f", "~/.conda/etc/profile.d/conda.sh")) {
+    return exec_wrapper(`. ~/.conda/etc/profile.d/conda.sh && ${cmd}`, group);
   } else {
     return exec_wrapper(cmd, group);
   }
@@ -70,4 +66,26 @@ function getInputAsArray(name) {
     .split("\n")
     .map((s) => s.trim())
     .filter((x) => x !== "");
+}
+
+/**
+ * Create the `safe to test` issue label.
+ *
+ */
+async function createSafeToTestLabel() {
+  const labels = await github.rest.issues
+    .listLabelsForRepo({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+    })
+    .then((res) => res.data);
+  if (!labels.some((e) => e.name == "safe to test")) {
+    await github.rest.issues.createLabel({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      name: "safe to test",
+      color: "0e8a16",
+      description: "PR can be tested with `pull_request_target`",
+    });
+  }
 }

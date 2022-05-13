@@ -6,12 +6,16 @@ const { buildArticle } = require("./article");
 const { buildTarball } = require("./arxiv");
 const { publishOutput } = require("./publish");
 const { publishLogs } = require("./logs");
+const utils = require("./utils");
 
 (async () => {
   try {
     
     // Exit on failure
     shell.set("-e");
+
+    // Create the `safe to test` label if it doesn't exist
+    await utils.createSafeToTestLabel()
 
     // Setup conda or restore from cache
     await setupConda();
