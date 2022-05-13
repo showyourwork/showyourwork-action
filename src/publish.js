@@ -16,8 +16,6 @@ async function publishOutput() {
   const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const config = require(`${GITHUB_WORKSPACE}/.showyourwork/config.json`);
   const output = [config["ms_pdf"]];
-  const prNumber = github.context.payload.pull_request.number;
-
   core.startGroup("Uploading output");
 
   // Include the arxiv tarball?
@@ -46,10 +44,13 @@ async function publishOutput() {
   const TARGET_DIRECTORY = shell
     .exec("mktemp -d")
     .replace(/(\r\n|\n|\r)/gm, "");
-  const TARGET_BRANCH =
-    GITHUB_EVENT_NAME == "pull_request_target"
-      ? `pull-request-${prNumber}-${OUTPUT_BRANCH_SUFFIX}`
-      : `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
+  var TARGET_BRANCH;
+  if (GITHUB_EVENT_NAME.includes("pull_request")) {
+    const PR_NUMBER = github.context.payload.pull_request.number;
+    TARGET_BRANCH = `pull-request-${PR_NUMBER}-${OUTPUT_BRANCH_SUFFIX}`;
+  } else {
+    TARGET_BRANCH = `${GITHUB_BRANCH}-${OUTPUT_BRANCH_SUFFIX}`;
+  }
   shell.cp("-R", ".", `${TARGET_DIRECTORY}`);
   shell.cd(`${TARGET_DIRECTORY}`);
   shell.exec(`git checkout --orphan ${TARGET_BRANCH}`);
