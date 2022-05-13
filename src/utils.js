@@ -111,18 +111,25 @@ async function createPullRequestInstructionsComment() {
   const octokit = github.getOctokit(token);
   const prNumber = github.context.payload.pull_request.number;
   const message =
-    "Thank you for submitting a pull request to **" +
+    "😀 Thank you for submitting a pull request to **" +
     context.repo.repo +
     "**. " +
     "For safety reasons, this pull request will only be built on GitHub " +
     "Actions after review by one of the repository maintainers.\n\n" +
-    "**Maintainers:** please check this pull request for potential security " +
+    "⚠️ Maintainers, please check this pull request for potential security " +
     "hazards. Note that pull requests to this repository that are built on " +
-    "GitHub Actions are granted access to all repository secrets, including " +
-    "the ``GITHUB_TOKEN``, which enables write access to this repository. " +
-    "You can read more about potential exploits " +
-    "[here](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/). " +
-    "If the pull request is deemed safe, you can trigger a build by adding " +
+    "GitHub Actions are granted access to the ``GITHUB_TOKEN``, which " +
+    "enables write access to this repository. Please carefully look over the" +
+    `[proposed changes](https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}/files) ` +
+    "to ensure this value and any other secrets provided in the workflow " +
+    "(such as ``ZENODO_TOKEN`` or ``OVERLEAF_PASSWORD``) are not exposed, " +
+    "leaked, or exploited by the PR issuer in any way. You can read more " +
+    "about potential exploits on the " +
+    "[GitHub](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/) " +
+    "and [showyourwork](https://showyourwork.readthedocs.io/en/latest/pull_requests) " +
+    "docs. If in doubt, and particularly if the PR issuer is not a trusted " +
+    "collaborator, do not attempt to build this PR, and do not merge it.\n\n" +
+    "😎 If the pull request is deemed safe, maintainers can trigger a build by adding " +
     "the ``safe to test`` label. If the build completes successfully, a link " +
     "to the article PDF will be posted below. Note that if the pull request " +
     "is updated with new commits, maintainers must manually re-add the " +
@@ -168,11 +175,11 @@ async function createPullRequestPDFComment(output_info) {
     ") " +
     "for commit ``" +
     commitSHA +
-    "``. You can find additional build output on the [" +
+    "``. You can find additional build output at [" +
     output_info.output_branch +
     "](" +
     output_info.output_branch_url +
-    ") branch.";
+    ").";
 
   // Delete existing comments
   const comments = await octokit.paginate(octokit.rest.issues.listComments, {
