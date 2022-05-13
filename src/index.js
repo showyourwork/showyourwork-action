@@ -19,12 +19,18 @@ const utils = require("./utils");
   await utils.createSafeToTestLabel()
 
   const github = require("@actions/github");
-  const token = core.getInput('github-token');
-  const octokit = github.getOctokit(token);
-
-  shell.echo(github.context.eventName);
-
   const payload = github.context.payload;
+  if (github.context.eventName == "pull_request_target") {
+    if (payload.action == "opened") {
+      if (payload.head.repo.full_name == payload.base.repo.full_name) {
+        // pass
+      } else {
+        utils.createPullRequestInstructionsComment();
+      }
+    }
+  }
+
+  
 
   shell.echo(JSON.stringify(payload));
 

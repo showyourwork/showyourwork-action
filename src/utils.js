@@ -4,7 +4,7 @@ const core = require("@actions/core");
 const shell = require("shelljs");
 
 // Exports
-module.exports = { makeId, exec, getInputAsArray, createSafeToTestLabel };
+module.exports = { makeId, exec, getInputAsArray, createSafeToTestLabel, createPullRequestInstructionsComment };
 
 /**
  * Generate a random hash.
@@ -74,7 +74,7 @@ function getInputAsArray(name) {
  */
 async function createSafeToTestLabel() {
   const context = github.context;
-  const token = core.getInput('github-token');
+  const token = core.getInput("github-token");
   const octokit = github.getOctokit(token);
   const labels = await octokit.rest.issues
     .listLabelsForRepo({
@@ -91,4 +91,38 @@ async function createSafeToTestLabel() {
       description: "PR can be tested with `pull_request_target`",
     });
   }
+}
+
+/**
+ *
+ *
+ */
+async function createPullRequestInstructionsComment() {
+  const context = github.context;
+  const token = core.getInput("github-token");
+  const octokit = github.getOctokit(token);
+  const prNumber = github.context.payload.number;
+  const message =
+    "Thank you for submitting a pull request to **" +
+    context.repo.repo +
+    "**. " +
+    "For safety reasons, this pull request will only be built on GitHub " +
+    "Actions after review by one of the repository maintainers.\n\n" +
+    "**Maintainers:** please check this pull request for potential security " +
+    "hazards. Note that pull requests to this repository that are built on " +
+    "GitHub Actions are granted access to all repository secrets, including " +
+    "the ``GITHUB_TOKEN``, which enables write access to this repository. " +
+    "You can read more about potential exploits " +
+    "[here](https://securitylab.github.com/research/github-actions-preventing-pwn-requests/)." +
+    "If the pull request is deemed safe, you can trigger a build by adding " +
+    "the ``safe to test`` label. If the build completes successfully, a link " +
+    "to the article PDF will be posted below. Note that if the pull request " +
+    "is updated with new commits, maintainers must manually re-add the " +
+    "``safe to test`` label each time they wish for it to be re-built.";
+  await octokit.rest.issues.createComment({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: prNumber,
+    body: message
+  });
 }
