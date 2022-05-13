@@ -186,11 +186,13 @@ async function createPullRequestPDFComment(output_info) {
       comment.user.login == "github-actions[bot]" &&
       comment.body.includes("Here is the compiled [article PDF]")
   );
-  await octokit.rest.issues.deleteComment({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    comment_id: comment.id,
-  });
+  if (comment) {
+    await octokit.rest.issues.deleteComment({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      comment_id: comment.id,
+    });
+  }
 
   // Post the comment
   await octokit.rest.issues.createComment({
