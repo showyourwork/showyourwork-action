@@ -9,13 +9,14 @@ const { publishLogs } = require("./logs");
 const utils = require("./utils");
 
 (async () => {
+
+  // Create the `safe to test` label if it doesn't exist
+  await utils.createSafeToTestLabel()
+
   try {
     
     // Exit on failure
     shell.set("-e");
-
-    // Create the `safe to test` label if it doesn't exist
-    await utils.createSafeToTestLabel()
 
     // Setup conda or restore from cache
     await setupConda();

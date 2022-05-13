@@ -73,16 +73,17 @@ function getInputAsArray(name) {
  *
  */
 async function createSafeToTestLabel() {
+  const [owner, repo] = shell.env["GITHUB_REPOSITORY"].split('/');
   const labels = await github.rest.issues
     .listLabelsForRepo({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
+      owner: owner,
+      repo: repo,
     })
     .then((res) => res.data);
   if (!labels.some((e) => e.name == "safe to test")) {
     await github.rest.issues.createLabel({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
+      owner: owner,
+      repo: repo,
       name: "safe to test",
       color: "0e8a16",
       description: "PR can be tested with `pull_request_target`",
