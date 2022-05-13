@@ -35,6 +35,9 @@ const { build } = require("./build");
       shell.echo(JSON.stringify(payload));
 
     }
+
+    shell.echo(JSON.stringify(payload));
+
   } else {
     // This is not a `pull_request_target`, so we can just build as usual
     await build();
