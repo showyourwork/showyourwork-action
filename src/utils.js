@@ -172,13 +172,12 @@ async function createPullRequestPDFComment(output_info) {
     ") branch.";
 
   // Search for an existing comment
-  const comments = await octokit
-    .paginate(octokit.rest.issues.listComments, {
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      issue_number: prNumber,
-    })
-    .reverse();
+  const comments = await octokit.paginate(octokit.rest.issues.listComments, {
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: prNumber,
+  });
+  comments.reverse();
   const comment = comments.find(
     (comment) =>
       comment.user.login == "github-actions[bot]" &&
