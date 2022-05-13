@@ -10,8 +10,27 @@ const utils = require("./utils");
 
 (async () => {
 
+  // DEBUG!
+
+  // Exit on failure
+  shell.set("-e");
+
   // Create the `safe to test` label if it doesn't exist
   await utils.createSafeToTestLabel()
+
+  const github = require("@actions/github");
+  const token = core.getInput('github-token');
+  const octokit = github.getOctokit(token);
+
+  shell.echo(github.context.eventName);
+
+  const payload = github.context.payload;
+
+  shell.echo(JSON.stringify(payload));
+
+
+  return;
+
 
   try {
     
