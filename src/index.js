@@ -1,5 +1,6 @@
 // Imports
 const core = require("@actions/core");
+const shell = require("shelljs");
 const { setupConda } = require("./conda");
 const { buildArticle } = require("./article");
 const { buildTarball } = require("./arxiv");
