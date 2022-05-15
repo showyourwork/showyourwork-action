@@ -1,4 +1,4 @@
-name: "showyourwork"
+name: "showyourwork-action"
 author: "Rodrigo Luger"
 description: "Build reproducible scientific articles"
 runs:

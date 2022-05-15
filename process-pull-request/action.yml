@@ -1,4 +1,4 @@
-name: "showyourwork"
+name: "showyourwork-action/process-pull-request"
 author: "Rodrigo Luger"
 description: "Build reproducible scientific articles"
 inputs:
