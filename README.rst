@@ -11,7 +11,7 @@
 
 The **showyourwork-action** runs on `GitHub Actions <https://github.com/features/actions>`_ to automatically build a `showyourwork <https://github.com/showyourwork/showyourwork>`_ article on the cloud every time changes are pushed to the remote repository. Under the hood, this action installs ``conda`` and ``showyourwork``, then runs the workflow to generate the article PDF, which it uploads to a separate branch on the remote. Importantly, everything is cached and all timestamps are preserved across builds, so this action will only re-run things that explicitly depend on the files that changed since the last time it ran.
 
-This action is typically called in the workflow file ``.github/workflows/build.yml`` of a `showyourwork <https://github.com/showyourwork/showyourwork>`_ article repository. For more information on GitHub Actions workflow files, see `here <https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions>`_.
+This action is typically called in the workflow files ``.github/workflows/build.yml`` and ``.github/workflows/build-pull-request.yml`` of a `showyourwork <https://github.com/showyourwork/showyourwork>`_ article repository. For more information on GitHub Actions workflow files, see `here <https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions>`_.
 
 Inputs
 ------
@@ -58,7 +58,17 @@ and check out the example below.
 Pull requests
 -------------
 
-Coming soon.
+If the ``showyourwork-action`` has write privileges to the repository (which is the default behavior when an owner/maintainer of the repository pushes to the remote), it force-pushes the compiled article PDF to a separate branch on the remote (if the current branch is called ``main``, the output by default gets pushed to ``main-pdf``). However, this will not work on pull request builds if the person issuing the pull request is not an owner or maintainer of the repository. In this case, the ``$GITHUB_TOKEN`` for the build is given only *read* permissions to the repository to `prevent "pwn requests" <https://securitylab.github.com/research/github-actions-preventing-pwn-requests/>`__. While good for security reasons, this makes it difficult for the maintainer to actually see the article PDF resulting from the pull request.
+
+To help with this, the ``showyourwork-action`` also uploads a zipped `build artifact <https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts>`__ containing the compiled PDF and the article tarball (if requested). Reviewers could manually download this artifact, unzip it, and locally inspect the PDF. But to make things easier, the ``showyourwork-action`` provides a second action, ``showyourwork-action/process-pull-request``, which runs whenever a pull request build completes. This action downloads the build artifact, unzips it, and pushes the PDF to a different branch (by default, ``pull-request-<NUMBER>-pdf``, where ``NUMBER`` is the number of the PR). It also posts a short comment in the pull request thread with a link to the PDF for quick viewing.
+
+Typical ``showyourwork`` repositories therefore have *three* workflow files: ``build.yml``, which builds the article on simple push events (using ``showyourwork-action``), ``build-pull-request.yml``, which builds the article on pull request events (also using ``showyourwork-action``), and ``process-pull-request.yml``, which runs after the pull request build completes and uploads the PDF to a separate branch on the repository (using ``showyourwork-action/process-pull-request``).
+
+One thing to keep in mind is that in addition to not having write access to the repository, pull request builds from external contributors do not have access to any of the repository secrets. This means that variables such as ``$SANDBOX_TOKEN``, ``$OVERLEAF_EMAIL``, and ``$OVERLEAF_PASSWORD`` will not be available to these builds. 
+
+If your workflow takes advantage of Zenodo caching functionality and the config setting ``run_cache_rules_on_ci`` is set to ``False`` (the default), the PR build will fail if the required cache file has not been published on Zenodo or Zenodo Sandbox. To allow external contributors to access the Zenodo cache when submitting pull requests, we recommend you locally run ``showyourwork cache freeze``, which publishes the latest draft on Zenodo Sandbox --- the cached files can then be downloaded by an unauthenticated ``GET`` request. If, however, the pull request modified anything *upstream* of the cache, there will be no cache hit when the PR build is run, and the workflow will necessarily fail if ``run_cache_rules_on_ci`` is ``False``. In these cases, we recommend that either the issuer of the PR sets ``run_cache_rules_on_ci`` to ``True`` *or* the reviewer checks out the PR and tests it locally.
+
+Finally, if your workflow is integrated with Overleaf, pull request builds will not be able to either pull from or push to the Overleaf project. A warning will be thrown, but the workflow will not fail.
 
 
 Example usage
