@@ -13,8 +13,9 @@ module.exports = { buildArticle };
  *
  */
 async function buildArticle() {
-  // Article cache settings. We only cache the contents of 
-  // `.snakemake/conda`, `${HOME}/.showyourwork`, and `src/tex/figures`.
+  // Article cache settings. We only cache the contents of
+  // `.snakemake/conda`, `${HOME}/.showyourwork`, `src/tex/figures`, and
+  // `src/tex/output` (if it exists).
   // Note that the GITHUB_REF (branch) is part of the cache key
   // so we don't mix up the caches for different branches!
   const ARTICLE_CACHE_NUMBER = core.getInput("article-cache-number");
@@ -28,12 +29,13 @@ async function buildArticle() {
   const article_paths = [
     ".snakemake/conda",
     "~/.showyourwork",
-    "src/tex/figures"
+    "src/tex/figures",
+    "src/tex/output",
   ];
 
   // We'll cache the article unless the user set the cache number to `null` (or empty).
-  const CACHE_ARTICLE = (
-    !(ARTICLE_CACHE_NUMBER == null || ARTICLE_CACHE_NUMBER == "")
+  const CACHE_ARTICLE = !(
+    ARTICLE_CACHE_NUMBER == null || ARTICLE_CACHE_NUMBER == ""
   );
 
   // Restore the article cache
