@@ -28,6 +28,30 @@ async function publishOutput() {
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
   if (GITHUB_EVENT_NAME.includes("pull_request")) {
     const PR_NUMBER = github.context.payload.pull_request.number;
+
+    // Build PDF diff
+    if (core.getInput("build-diff-on-pull-request") == "true") {
+      const LATEXDIFF_URL = core.getInput("latexdiff-url");
+      const BASE_REF = github.context.payload.pull_request.base.ref;
+
+      core.startGroup("Build article diff");
+
+      // Download latexdiff
+      shell.exec(`wget ${LATEXDIFF_URL}`)
+
+      // Checkout base version of ms.tex
+      shell.exec(`git show ${BASE_REF}:src/tex/ms.tex > src/tex/old.tex`);
+      // TODO: Flatten files to single latex file, to allow diff on
+      //       auxiliary files.
+
+      // Compute diff, and build
+      shell.exec(`perl latexdiff src/tex/old.tex src/tex/ms.tex > tmp.tex`);
+      shell.exec(`mv tmp.tex src/tex/ms.tex`);
+      shell.exec(`showyourwork build`);
+
+      core.endGroup();
+    }
+
     output.forEach(function (file) {
       shell.exec(`echo ${file} >> output.txt`);
     });
