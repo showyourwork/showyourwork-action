@@ -106,10 +106,12 @@ runs:
           let prNumber = ${{ steps.get-pr-number.outputs.result }};
           let outputBranch = `pull-request-${prNumber}-${branchSuffix}`;
           let pdfURL = `${htmlURL}/raw/${outputBranch}/${pdfName}`;
+          let diffURL = `${htmlURL}/raw/${outputBranch}/diff.pdf`;
           let branchURL = `${htmlURL}/tree/${outputBranch}`;
           let body = 
-            `Here is the compiled [article PDF](${pdfURL}) for the latest ` +
-            `commit. You can find additional build output at ` +
+            `Here is the compiled [article PDF](${pdfURL}), ` +
+            `as well as the [PDF with highlighted changes](${diffURL}), ` +
+            `of the latest commit. You can find additional build output at ` +
             `[${outputBranch}](${branchURL}).`;
 
           // Delete existing comment, if any
