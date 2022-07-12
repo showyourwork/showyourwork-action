@@ -36,6 +36,7 @@ async function publishOutput() {
       const BASE_REF = github.context.payload.pull_request.base.ref;
 
       core.startGroup("Build article diff");
+      shell.exec(`cp ${config["ms_pdf"]} .bkup.pdf`);
 
       // Download latexdiff and latexpand
       shell.exec(`wget ${LATEXDIFF_URL} && chmod +x latexdiff`);
@@ -50,6 +51,8 @@ async function publishOutput() {
       shell.exec(`perl latexdiff src/tex/old.tex src/tex/ms.tex > tmp.tex`);
       shell.exec(`mv tmp.tex src/tex/ms.tex`);
       shell.exec(`showyourwork build`);
+      shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
+      shell.exec(`cp .bkup ${config["ms_pdf"]}`);
 
       core.endGroup();
     }
