@@ -43,12 +43,12 @@ async function publishOutput() {
       shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
 
       // Checkout base version of ms.tex
-      shell.exec(`git show ${BASE_REF}:src/tex/ms.tex > src/tex/old.tex`);
-      // TODO: Flatten files to single latex file, to allow diff on
-      //       auxiliary files.
+      shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_new.tex`);
+      shell.exec(`git checkout ${BASE_REF} src/tex`);
+      shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_old.tex`);
 
       // Compute diff, and build
-      shell.exec(`perl latexdiff src/tex/old.tex src/tex/ms.tex > tmp.tex`);
+      shell.exec(`perl latexdiff src/tex/.flat_old.tex src/tex/.flat_new.tex > tmp.tex`);
       shell.exec(`mv tmp.tex src/tex/ms.tex`);
       shell.exec(`showyourwork build`);
       shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
