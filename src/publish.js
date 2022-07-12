@@ -54,6 +54,7 @@ async function publishOutput() {
         shell.exec(`showyourwork build`);
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
         shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
+        output.push("diff.pdf");
 
       core.endGroup();
       } catch (error) {
