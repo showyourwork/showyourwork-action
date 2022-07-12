@@ -49,7 +49,7 @@ async function publishOutput() {
         shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_old.tex`);
 
         // Compute diff, and build
-        shell.exec(`perl latexdiff src/tex/.flat_old.tex src/tex/.flat_new.tex > tmp.tex`);
+        shell.exec(`./latexdiff src/tex/.flat_old.tex src/tex/.flat_new.tex > tmp.tex`);
         shell.exec(`mv tmp.tex src/tex/ms.tex`);
         shell.exec(`showyourwork build`);
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
