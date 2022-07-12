@@ -31,30 +31,35 @@ async function publishOutput() {
 
     // Build PDF diff
     if (core.getInput("build-diff-on-pull-request") == "true") {
-      const LATEXDIFF_URL = core.getInput("latexdiff-url");
-      const LATEXPAND_URL = core.getInput("latexpand-url"); 
-      const BASE_REF = github.context.payload.pull_request.base.ref;
+      try {
+        const LATEXDIFF_URL = core.getInput("latexdiff-url");
+        const LATEXPAND_URL = core.getInput("latexpand-url"); 
+        const BASE_REF = github.context.payload.pull_request.base.ref;
 
-      core.startGroup("Build article diff");
-      shell.exec(`cp ${config["ms_pdf"]} .bkup.pdf`);
+        core.startGroup("Build article diff");
+        shell.exec(`cp ${config["ms_pdf"]} .bkup.pdf`);
 
-      // Download latexdiff and latexpand
-      shell.exec(`wget ${LATEXDIFF_URL} && chmod +x latexdiff`);
-      shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
+        // Download latexdiff and latexpand
+        shell.exec(`wget ${LATEXDIFF_URL} && chmod +x latexdiff`);
+        shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
 
-      // Checkout base version of ms.tex
-      shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_new.tex`);
-      shell.exec(`git checkout ${BASE_REF} src/tex`);
-      shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_old.tex`);
+        // Checkout base version of ms.tex
+        shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_new.tex`);
+        shell.exec(`git checkout ${BASE_REF} src/tex`);
+        shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_old.tex`);
 
-      // Compute diff, and build
-      shell.exec(`perl latexdiff src/tex/.flat_old.tex src/tex/.flat_new.tex > tmp.tex`);
-      shell.exec(`mv tmp.tex src/tex/ms.tex`);
-      shell.exec(`showyourwork build`);
-      shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
-      shell.exec(`cp .bkup ${config["ms_pdf"]}`);
+        // Compute diff, and build
+        shell.exec(`perl latexdiff src/tex/.flat_old.tex src/tex/.flat_new.tex > tmp.tex`);
+        shell.exec(`mv tmp.tex src/tex/ms.tex`);
+        shell.exec(`showyourwork build`);
+        shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
+        shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
 
       core.endGroup();
+      } catch (error) {
+        // Print error message, but don't fail the action
+        console.log("Failed to generate diff with " + error.message);
+      }
     }
 
     output.forEach(function (file) {
