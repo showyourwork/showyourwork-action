@@ -111,7 +111,7 @@ runs:
           let body = 
             `Here is the compiled [article PDF](${pdfURL}), ` +
             `as well as the [PDF with highlighted changes](${diffURL}), ` +
-            `of the latest commit. You can find additional build output at ` +
+            `for the latest commit. You can find additional build output at ` +
             `[${outputBranch}](${branchURL}).`;
 
           // Delete existing comment, if any
