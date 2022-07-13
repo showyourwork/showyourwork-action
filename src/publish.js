@@ -33,7 +33,7 @@ async function publishOutput() {
       try {
         const LATEXDIFF_URL = core.getInput("latexdiff-url");
         const LATEXPAND_URL = core.getInput("latexpand-url"); 
-        const BASE_REF = github.context.payload.pull_request.base.ref;
+        const BASE_REF = github.context.payload.pull_request.base.sha;
 
         core.startGroup("Build article diff");
         shell.exec(`cp ${config["ms_pdf"]} .bkup.pdf`);
