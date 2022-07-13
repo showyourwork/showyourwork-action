@@ -44,13 +44,13 @@ async function publishOutput() {
         shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
 
         // Checkout base version of ms.tex
-        shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_new.tex`);
+        shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_new.tex`);
         shell.exec(`git checkout ${BASE_REF} src/tex`);
-        shell.exec(`./latexpand src/tex/${config["ms_name"]} -o .flat_old.tex`);
+        shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_old.tex`);
 
         // Compute diff, and build
         shell.exec(`./latexdiff src/tex/.flat_old.tex src/tex/.flat_new.tex > tmp.tex`);
-        shell.exec(`mv tmp.tex src/tex/ms.tex`);
+        shell.exec(`mv tmp.tex src/tex/${config["ms_name"]}.tex`);
         shell.exec(`showyourwork build`);
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
         shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
