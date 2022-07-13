@@ -1,6 +1,7 @@
 name: "showyourwork-action"
 author: "Rodrigo Luger"
 description: "Build reproducible scientific articles"
+runs-on: ubuntu-latest
 runs:
   using: "node12"
   main: "src/index.js"
