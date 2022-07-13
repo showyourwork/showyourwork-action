@@ -23,6 +23,11 @@ async function publishOutput() {
     output.push("arxiv.tar.gz");
   }
 
+  // Include the DAG?
+  if (config["render_dag"]) {
+    output.push("dag.pdf");
+  }
+
   // If this is a PR, record some metadata
   const GITHUB_EVENT_NAME = shell.env["GITHUB_EVENT_NAME"];
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
