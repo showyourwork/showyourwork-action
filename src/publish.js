@@ -16,7 +16,6 @@ async function publishOutput() {
   const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const config = require(`${GITHUB_WORKSPACE}/.showyourwork/config.json`);
   const output = [config["ms_pdf"]];
-  core.startGroup("Uploading output");
 
   // Include the arxiv tarball?
   if (core.getInput("build-tarball") == "true") {
@@ -55,14 +54,14 @@ async function publishOutput() {
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
         shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
         output.push("diff.pdf");
-
-      core.endGroup();
+        core.endGroup();
+        
       } catch (error) {
-        // Print error message, but don't fail the action
-        console.log("Failed to generate diff with " + error.message);
+        // Raise warning, but don't fail the action
+        shell.echo(`::warning ::Failed to generate diff with ${error.message}`);
       }
     }
-
+    
     output.forEach(function (file) {
       shell.exec(`echo ${file} >> output.txt`);
     });
@@ -76,6 +75,7 @@ async function publishOutput() {
   }
 
   // Upload an artifact
+  core.startGroup("Uploading output");
   const artifactClient = artifact.create();
   await artifactClient.uploadArtifact("showyourwork-output", output, ".", {
     continueOnError: false,
@@ -108,6 +108,6 @@ async function publishOutput() {
         `${TARGET_BRANCH}`
     );
     shell.cd(GITHUB_WORKSPACE);
-    core.endGroup();
   }
+  core.endGroup();
 }
