@@ -43,7 +43,7 @@ async function publishOutput() {
         shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
 
         // Install perl packages:
-        shell.exec(`PERL_MM_USE_DEFAULT=1 perl -MCPAN -e "install Algorithm::Diff"`);
+        shell.exec(`apt-get update -y && apt-get install -y libalgorithm-diff-perl`)
 
         // Checkout base version of ms.tex
         shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_new.tex`);
