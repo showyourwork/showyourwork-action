@@ -43,7 +43,7 @@ async function publishOutput() {
         shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
 
         // Install perl and texlive packages:
-        shell.exec(`sudo apt-get update -y && sudo apt-get install -y libalgorithm-diff-perl texlive-full`)
+        shell.exec(`sudo apt-get update -y && sudo apt-get install -y libalgorithm-diff-perl texlive-base`)
 
         // Checkout base version of ms.tex
         shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_new.tex`);
