@@ -1,6 +1,7 @@
 name: "showyourwork-action"
 author: "Rodrigo Luger"
 description: "Build reproducible scientific articles"
+runs-on: ubuntu-latest
 runs:
   using: "node12"
   main: "src/index.js"
@@ -25,6 +26,18 @@ inputs:
     description: "Build a tarball for easy ArXiV submission?"
     required: false
     default: true
+  build-diff-on-pull-request:
+    description: "Build the `latexdiff` version of a PDF on pull requests"
+    required: false
+    default: true
+  latexdiff-url:
+    description: "URL to download `latexdiff`"
+    required: false
+    default: "https://raw.githubusercontent.com/ftilmann/latexdiff/1.3.2/latexdiff"
+  latexpand-url:
+    description: "URL to download `latexpand`"
+    required: false
+    default: "https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand"
 branding:
   icon: "book-open"
   color: "red"

@@ -16,7 +16,6 @@ async function publishOutput() {
   const GITHUB_WORKSPACE = shell.env["GITHUB_WORKSPACE"];
   const config = require(`${GITHUB_WORKSPACE}/.showyourwork/config.json`);
   const output = [config["ms_pdf"]];
-  core.startGroup("Uploading output");
 
   // Include the arxiv tarball?
   if (core.getInput("build-tarball") == "true") {
@@ -33,6 +32,44 @@ async function publishOutput() {
   const OUTPUT_BRANCH_SUFFIX = core.getInput("output-branch-suffix");
   if (GITHUB_EVENT_NAME.includes("pull_request")) {
     const PR_NUMBER = github.context.payload.pull_request.number;
+
+    // Build PDF diff
+    if (core.getInput("build-diff-on-pull-request") == "true") {
+      try {
+        const LATEXDIFF_URL = core.getInput("latexdiff-url");
+        const LATEXPAND_URL = core.getInput("latexpand-url"); 
+        const BASE_REF = github.context.payload.pull_request.base.sha;
+
+        core.startGroup("Build article diff");
+        shell.exec(`cp ${config["ms_pdf"]} .bkup.pdf`);
+
+        // Download latexdiff and latexpand
+        shell.exec(`wget ${LATEXDIFF_URL} && chmod +x latexdiff`);
+        shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
+
+        // Install perl and texlive packages:
+        shell.exec(`sudo apt-get update -y && sudo apt-get install -y libalgorithm-diff-perl texlive-base`)
+
+        // Checkout base version of ms.tex
+        shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_new.tex`);
+        shell.exec(`git checkout ${BASE_REF} src/tex`);
+        shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_old.tex`);
+
+        // Compute diff, and build
+        shell.exec(`./latexdiff .flat_old.tex .flat_new.tex > tmp.tex`);
+        shell.exec(`mv tmp.tex src/tex/${config["ms_name"]}.tex`);
+        shell.exec(`showyourwork build`);
+        shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
+        shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
+        output.push("diff.pdf");
+        core.endGroup();
+        
+      } catch (error) {
+        // Raise warning, but don't fail the action
+        shell.echo(`::warning ::Failed to generate diff with ${error.message}`);
+      }
+    }
+    
     output.forEach(function (file) {
       shell.exec(`echo ${file} >> output.txt`);
     });
@@ -46,6 +83,7 @@ async function publishOutput() {
   }
 
   // Upload an artifact
+  core.startGroup("Uploading output");
   const artifactClient = artifact.create();
   await artifactClient.uploadArtifact("showyourwork-output", output, ".", {
     continueOnError: false,
@@ -78,6 +116,6 @@ async function publishOutput() {
         `${TARGET_BRANCH}`
     );
     shell.cd(GITHUB_WORKSPACE);
-    core.endGroup();
   }
+  core.endGroup();
 }
