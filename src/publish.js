@@ -37,7 +37,8 @@ async function publishOutput() {
     if (core.getInput("build-diff-on-pull-request") == "true") {
       try {
         const LATEXDIFF_URL = core.getInput("latexdiff-url");
-        const LATEXPAND_URL = core.getInput("latexpand-url"); 
+        const LATEXPAND_URL = core.getInput("latexpand-url");
+        const LATEXDIFF_OPTS = core.getInput("latexdiff-options");
         const BASE_REF = github.context.payload.pull_request.base.sha;
 
         core.startGroup("Build article diff");
@@ -48,28 +49,41 @@ async function publishOutput() {
         shell.exec(`wget ${LATEXPAND_URL} && chmod +x latexpand`);
 
         // Install perl and texlive packages:
-        shell.exec(`sudo apt-get update -y && sudo apt-get install -y libalgorithm-diff-perl texlive-base`)
+        shell.exec(
+          `sudo apt-get update -y && sudo apt-get install -y libalgorithm-diff-perl texlive-base`
+        );
 
         // Checkout base version of ms.tex
-        shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_new.tex`);
+        shell.exec(
+          `./latexpand src/tex/${config["ms_name"]}.tex -o .flat_new.tex`
+        );
         shell.exec(`git checkout ${BASE_REF} src/tex`);
-        shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_old.tex`);
+        shell.exec(
+          `./latexpand src/tex/${config["ms_name"]}.tex -o .flat_old.tex`
+        );
 
         // Compute diff, and build
-        shell.exec(`./latexdiff -t CFONT .flat_old.tex .flat_new.tex > tmp.tex`);
+        shell.exec(
+          `./latexdiff ${LATEXDIFF_OPTS} .flat_old.tex .flat_new.tex > tmp.tex`
+        );
+        // Patch for aastex to force exiting vertical mode before trying to render strikeout text.
+        // If the first character of any paragraph or section is deleted, the diff will _not_
+        // compile because the strikeout (\sout) command fails in vertical mode.
+        shell.exec(
+          `sed -i 's/\\\\RequirePackage\\[normalem\\]{ulem}/\\\\RequirePackage\\[normalem\\]{ulem} \\\\let\\\\oldsout\\\\sout \\\\renewcommand\\\\sout\\[1\\]{\\\\leavevmode\\\\oldsout{#1}}/' tmp.tex`
+        );
         shell.exec(`mv tmp.tex src/tex/${config["ms_name"]}.tex`);
         shell.exec(`showyourwork build`);
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
         shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
         output.push("diff.pdf");
         core.endGroup();
-        
       } catch (error) {
         // Raise warning, but don't fail the action
         shell.echo(`::warning ::Failed to generate diff with ${error.message}`);
       }
     }
-    
+
     output.forEach(function (file) {
       shell.exec(`echo ${file} >> output.txt`);
     });

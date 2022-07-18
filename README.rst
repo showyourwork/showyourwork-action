@@ -53,6 +53,11 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 
 **Optional** Specify the URL of the :code:`latexdiff` script to download. You may use this to set a custom version of :code:`latexdiff`.
 
+:code:`latexdiff-options`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Optional** Options passed to `latexdiff` to render diffs on pull requests. See https://ctan.org/pkg/latexdiff?lang=en for details. Default: :code:`-t CFONT`
+
 :code:`latexpand-url`
 ~~~~~~~~~~~~~~~~~~~~
 
