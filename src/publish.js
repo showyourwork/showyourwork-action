@@ -56,13 +56,7 @@ async function publishOutput() {
         shell.exec(`./latexpand src/tex/${config["ms_name"]}.tex -o .flat_old.tex`);
 
         // Compute diff, and build
-        shell.exec(`./latexdiff .flat_old.tex .flat_new.tex > tmp.tex`);
-        
-        // Patch for aastex to force exiting vertical mode before trying to render strikeout text.
-        // If the first character of any paragraph or section is deleted, the diff will _not_
-        // compile because the strikeout (\sout) command fails in vertical mode.
-        shell.exec(`sed -i 's/\\\\RequirePackage\\[normalem\\]{ulem}/\\\\RequirePackage\\[normalem\\]{ulem} \\\\let\\\\oldsout\\\\sout \\\\renewcommand\\\\sout\\[1\\]{x\\\\oldsout{#1}}/' tmp.tex`);
-        
+        shell.exec(`./latexdiff -t CFONT .flat_old.tex .flat_new.tex > tmp.tex`);
         shell.exec(`mv tmp.tex src/tex/${config["ms_name"]}.tex`);
         shell.exec(`showyourwork build`);
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
