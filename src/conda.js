@@ -51,16 +51,23 @@ async function setupConda() {
   }
 
   // Always install the latest version of showyourwork
-  core.startGroup("Install showyourwork");
   const version = core.getInput("showyourwork-version");
   const fork = core.getInput("showyourwork-fork");
   const ref = core.getInput("showyourwork-ref");
-  shell.echo(`${version} ${fork} ${ref}`);
-  // if (fork || ref) {
-
-  // }
-  const syw = core.getInput("pip-install-syw");
-  exec(`pip install -U ${syw}`, "Install showyourwork");
+  let command = `pip install -U showyourwork`;
+  if (fork != "" || ref != "") {
+    if (fork == "") {
+      fork = "https://github.com/showyourwork/showyourwork.git";
+    }
+    if (ref == "") {
+      command = `pip install git+${fork}#egg=showyourwork`;
+    } else {
+      command = `pip install git+${fork}@${ref}#egg=showyourwork`;
+    }
+  } else if (version != "latest") {
+    command = `pip install showyourwork==${version}`;
+  }
+  exec(command, "Install showyourwork");
 
   // Display some info
   exec("conda info", "Conda info");
