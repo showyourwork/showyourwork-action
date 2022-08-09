@@ -51,7 +51,8 @@ async function setupConda() {
   }
 
   // Always install the latest version of showyourwork
-  exec("pip install -U showyourwork", "Install showyourwork");
+  const syw = core.getInput("pip-install-syw");
+  exec(`pip install -U ${syw}`, "Install showyourwork");
 
   // Display some info
   exec("conda info", "Conda info");

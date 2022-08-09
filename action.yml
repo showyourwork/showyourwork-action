@@ -42,6 +42,10 @@ inputs:
     description: "URL to download `latexpand`"
     required: false
     default: "https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand"
+  pip-install-syw:
+    description: "A custom command to use when installing `showyourwork`: `pip install <pip-install-syw>`"
+    required: false
+    default: "showyourwork"
 branding:
   icon: "book-open"
   color: "red"
