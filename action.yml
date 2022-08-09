@@ -42,14 +42,16 @@ inputs:
     description: "URL to download `latexpand`"
     required: false
     default: "https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand"
-  pip-install-syw:
-    description: "A custom command to use when installing `showyourwork`: `pip install <pip-install-syw>`"
-    required: false
-    default: "showyourwork"
   showyourwork-version:
     description: "Version of `showyourwork` to use"
     required: false
     default: "latest"
+  showyourwork-fork:
+    description: "The URL of a fork of the `showyourwork` repo"
+    required: false
+  showyourwork-ref:
+    description: "The name of a specific branch, tag, or commit on the fork of the `showyourwork` repo specified by `showyourwork-fork`"
+    required: false
 branding:
   icon: "book-open"
   color: "red"
