@@ -46,6 +46,10 @@ inputs:
     description: "A custom command to use when installing `showyourwork`: `pip install <pip-install-syw>`"
     required: false
     default: "showyourwork"
+  showyourwork-version:
+    description: "Version of `showyourwork` to use"
+    required: false
+    default: "latest"
 branding:
   icon: "book-open"
   color: "red"
