@@ -60,12 +60,12 @@ async function setupConda() {
       fork = "https://github.com/showyourwork/showyourwork.git";
     }
     if (ref == "") {
-      command = `pip install git+${fork}#egg=showyourwork`;
+      command = `pip install -U git+${fork}#egg=showyourwork`;
     } else {
-      command = `pip install git+${fork}@${ref}#egg=showyourwork`;
+      command = `pip install -U git+${fork}@${ref}#egg=showyourwork`;
     }
   } else if (version != "latest") {
-    command = `pip install showyourwork==${version}`;
+    command = `pip install -U showyourwork==${version}`;
   }
   exec(command, "Install showyourwork");
 
