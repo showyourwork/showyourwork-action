@@ -49,7 +49,7 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 **Optional** Build the :code:`latexdiff` version of the article, in addition to the regular article? This will build a second PDF of the article, with all changes highlighted with respect to the base branch.
 
 :code:`latexdiff-url`
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 **Optional** Specify the URL of the :code:`latexdiff` script to download. You may use this to set a custom version of :code:`latexdiff`.
 
@@ -59,7 +59,7 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 **Optional** Options passed to `latexdiff` to render diffs on pull requests. See https://ctan.org/pkg/latexdiff?lang=en for details. Default: :code:`-t CFONT`
 
 :code:`latexpand-url`
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 **Optional** Specify the URL of the :code:`latexpand` script to download. You may use this to set a custom version of :code:`latexpand`.
 
