@@ -63,6 +63,11 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 
 **Optional** Specify the URL of the :code:`latexpand` script to download. You may use this to set a custom version of :code:`latexpand`.
 
+:code:`showyourwork-spec`
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Optional** The version specification of :code:`showyourwork` to install using :code:`pip`. The code will be installed as :code:`pip install -U <showyourwork-spec>`. Default is :code:`showyourwork` (which resolves to the latest available version on PyPI).
+
 Environment variables
 ---------------------
 
