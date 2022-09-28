@@ -10,6 +10,7 @@ module.exports = { setupConda };
 
 // Cache settings
 const CONDA_CACHE_NUMBER = core.getInput("conda-cache-number");
+const SHOWYOUWORK_SPEC = core.getInput("showyourwork-spec");
 const RUNNER_OS = shell.env["RUNNER_OS"];
 const conda_key = `conda-${constants.conda_cache_version}-${RUNNER_OS}-${CONDA_CACHE_NUMBER}`;
 const conda_restoreKeys = [];
@@ -50,8 +51,8 @@ async function setupConda() {
     core.endGroup();
   }
 
-  // Always install the latest version of showyourwork
-  exec("pip install -U showyourwork", "Install showyourwork");
+  // Install showyourwork
+  exec(`pip install -U ${SHOWYOUWORK_SPEC}`, "Install showyourwork");
 
   // Display some info
   exec("conda info", "Conda info");
