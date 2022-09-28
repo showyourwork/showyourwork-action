@@ -42,6 +42,10 @@ inputs:
     description: "URL to download `latexpand`"
     required: false
     default: "https://gitlab.com/latexpand/latexpand/-/raw/master/latexpand"
+  showyourwork-spec:
+    description: "pip version specification for installing showyourwork, e.g., `pip install <showyourwork_spec>`"
+    required: false
+    default: "showyourwork"
 branding:
   icon: "book-open"
   color: "red"
