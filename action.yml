@@ -3,7 +3,7 @@ author: "Rodrigo Luger"
 description: "Build reproducible scientific articles"
 runs-on: ubuntu-latest
 runs:
-  using: "node12"
+  using: "node16"
   main: "src/index.js"
 inputs:
   conda-cache-number:
