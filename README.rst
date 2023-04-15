@@ -13,6 +13,21 @@ The **showyourwork-action** runs on `GitHub Actions <https://github.com/features
 
 This action is typically called in the workflow files ``.github/workflows/build.yml`` and ``.github/workflows/build-pull-request.yml`` of a `showyourwork <https://github.com/showyourwork/showyourwork>`_ article repository. For more information on GitHub Actions workflow files, see `here <https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions>`_.
 
+When setting up your GitHub repository, ensure that the GitHub Actions permissions for the ``GITHUB_TOKEN``
+secret are set to ``permissive``. First, go to
+
+.. raw:: html
+
+    <pre>
+    https://github.com/<span class="text-highlight">$USER/$REPO</span>/settings/actions
+    </pre>
+
+and change the permissions to ``permissive``:
+
+.. image:: https://show-your.work/en/latest/_images/workflow_permissions.png
+   :width: 60%
+   :align: center
+
 Inputs
 ------
 
