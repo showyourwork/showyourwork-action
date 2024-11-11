@@ -86,7 +86,7 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 Environment variables
 ---------------------
 
-There are a few environment variables that may be needed on the ``showyourwork`` side. These include :code:`$SANDBOX_TOKEN` (a Zenodo Sandbox API token that can be used to authenticate when uploading or downloading files from Zenodo Sandbox deposits) and :code:`$OVERLEAF_EMAIL` and :code:`$OVERLEAF_PASSWORD` (credentials for accessing and modifying an Overleaf project repository).
+There are a few environment variables that may be needed on the ``showyourwork`` side. These include :code:`$SANDBOX_TOKEN` (a Zenodo Sandbox API token that can be used to authenticate when uploading or downloading files from Zenodo Sandbox deposits) and :code:`$OVERLEAF_TOKEN` (credentials for accessing and modifying an Overleaf project repository).
 These should be provided through `Action secrets <https://docs.github.com/en/actions/security-guides/encrypted-secrets>`_ using the :code:`env:` directive (see the example below).
 
 Concurrency
@@ -104,7 +104,7 @@ To help with this, the ``showyourwork-action`` also uploads a zipped `build arti
 
 Typical ``showyourwork`` repositories therefore have *three* workflow files: ``build.yml``, which builds the article on simple push events (using ``showyourwork-action``), ``build-pull-request.yml``, which builds the article on pull request events (also using ``showyourwork-action``), and ``process-pull-request.yml``, which runs after the pull request build completes and uploads the PDF to a separate branch on the repository (using ``showyourwork-action/process-pull-request``).
 
-One thing to keep in mind is that in addition to not having write access to the repository, pull request builds from external contributors do not have access to any of the repository secrets. This means that variables such as ``$SANDBOX_TOKEN``, ``$OVERLEAF_EMAIL``, and ``$OVERLEAF_PASSWORD`` will not be available to these builds. 
+One thing to keep in mind is that in addition to not having write access to the repository, pull request builds from external contributors do not have access to any of the repository secrets. This means that variables such as ``$SANDBOX_TOKEN``, ``$OVERLEAF_TOKEN`` will not be available to these builds. 
 
 If your workflow takes advantage of Zenodo caching functionality and the config setting ``run_cache_rules_on_ci`` is set to ``False`` (the default), the PR build will fail if the required cache file has not been published on Zenodo or Zenodo Sandbox. To allow external contributors to access the Zenodo cache when submitting pull requests, we recommend you locally run ``showyourwork cache freeze``, which publishes the latest draft on Zenodo Sandbox --- the cached files can then be downloaded by an unauthenticated ``GET`` request. If, however, the pull request modified anything *upstream* of the cache, there will be no cache hit when the PR build is run, and the workflow will necessarily fail if ``run_cache_rules_on_ci`` is ``False``. In these cases, we recommend that either the issuer of the PR sets ``run_cache_rules_on_ci`` to ``True`` *or* the reviewer checks out the PR and tests it locally.
 
@@ -140,5 +140,4 @@ Below is a complete example of a ``.github/workflows/build.yml`` file.
           uses: showyourwork/showyourwork-action@v1
           env:
             SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
-            OVERLEAF_EMAIL: ${{ secrets.OVERLEAF_EMAIL }}
-            OVERLEAF_PASSWORD: ${{ secrets.OVERLEAF_PASSWORD }}
+            OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
