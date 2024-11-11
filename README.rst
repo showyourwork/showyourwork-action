@@ -86,7 +86,7 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 Environment variables
 ---------------------
 
-There are a few environment variables that may be needed on the ``showyourwork`` side. These include :code:`$SANDBOX_TOKEN` (a Zenodo Sandbox API token that can be used to authenticate when uploading or downloading files from Zenodo Sandbox deposits) and :code:`$OVERLEAF_TOEKN` (credentials for accessing and modifying an Overleaf project repository).
+There are a few environment variables that may be needed on the ``showyourwork`` side. These include :code:`$SANDBOX_TOKEN` (a Zenodo Sandbox API token that can be used to authenticate when uploading or downloading files from Zenodo Sandbox deposits) and :code:`$OVERLEAF_TOKEN` (credentials for accessing and modifying an Overleaf project repository).
 These should be provided through `Action secrets <https://docs.github.com/en/actions/security-guides/encrypted-secrets>`_ using the :code:`env:` directive (see the example below).
 
 Concurrency
