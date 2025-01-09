@@ -47,7 +47,7 @@ async function setupConda() {
     exec("bash ./conda.sh -b -p ~/.conda && rm -f ./conda.sh", "Install conda");
     core.startGroup("Configure conda");
     exec("conda config --add pkgs_dirs ~/conda_pkgs_dir");
-    exec("conda install -y pip");
+    exec("conda install -y python'>=3.8,<3.11' pip");
     core.endGroup();
   }
 
