@@ -53,7 +53,7 @@ function exec_wrapper(cmd, group) {
  */
 function exec(cmd, group) {
   if (shell.test("-f", "~/.conda/etc/profile.d/conda.sh")) {
-    return exec_wrapper(`. ~/.conda/etc/profile.d/conda.sh && ${cmd}`, group);
+    return exec_wrapper(`. ~/.conda/etc/profile.d/conda.sh && conda activate base && ${cmd}`, group);
   } else {
     return exec_wrapper(cmd, group);
   }
