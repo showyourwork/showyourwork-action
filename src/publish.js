@@ -1,7 +1,7 @@
 // Imports
 const core = require("@actions/core");
 const shell = require("shelljs");
-const artifact = require("@actions/artifact");
+const { DefaultArtifactClient } = require('@actions/artifact')
 const github = require("@actions/github");
 
 // Exports
@@ -98,10 +98,11 @@ async function publishOutput() {
 
   // Upload an artifact
   core.startGroup("Uploading output");
-  const artifactClient = artifact.create();
-  await artifactClient.uploadArtifact("showyourwork-output", output, ".", {
+  const artifactClient = new DefaultArtifactClient()
+  const { id, size } = await artifactClient.uploadArtifact("showyourwork-output", output, ".", {
     continueOnError: false,
   });
+  console.log(`Created artifact with id: ${id} (bytes: ${size}`)
 
   // Force-push output to a separate branch
   if (!GITHUB_EVENT_NAME.includes("pull_request")) {
@@ -122,12 +123,12 @@ async function publishOutput() {
     }
     shell.exec(
       "git -c user.name='showyourwork' -c user.email='showyourwork' " +
-        "commit -m 'force-push article output'"
+      "commit -m 'force-push article output'"
     );
     shell.exec(
       "git push --force " +
-        `https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_SLUG} ` +
-        `${TARGET_BRANCH}`
+      `https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_SLUG} ` +
+      `${TARGET_BRANCH}`
     );
     shell.cd(GITHUB_WORKSPACE);
   }
