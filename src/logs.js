@@ -1,6 +1,6 @@
 // Imports
 const core = require("@actions/core");
-const artifact = require("@actions/artifact");
+const { DefaultArtifactClient } = require('@actions/artifact')
 const shell = require("shelljs");
 
 // Exports
@@ -21,18 +21,18 @@ async function publishLogs() {
   // Collect all files to upload
   var files = shell.exec(
     "find .showyourwork " +
-      "-not -type d " +
-      "-not -path '.showyourwork/cache/**' " +
-      "-not -path '.showyourwork/zenodo/**' " +
-      "-not -path '.showyourwork/zenodo_sandbox/**' " +
-      "-print",
+    "-not -type d " +
+    "-not -path '.showyourwork/cache/**' " +
+    "-not -path '.showyourwork/zenodo/**' " +
+    "-not -path '.showyourwork/zenodo_sandbox/**' " +
+    "-print",
     { silent: true }
   );
   files = files.split("\n").filter((n) => n);
 
   // Upload the artifact
-  const artifactClient = artifact.create();
-  const uploadResponse = await artifactClient.uploadArtifact(
+  const artifactClient = new DefaultArtifactClient()
+  const { id, size } = await artifactClient.uploadArtifact(
     "showyourwork-logs",
     files,
     ".showyourwork",
@@ -40,5 +40,6 @@ async function publishLogs() {
       continueOnError: false,
     }
   );
+  console.log(`Created artifact with id: ${id} (bytes: ${size}`)
   core.endGroup();
 }
