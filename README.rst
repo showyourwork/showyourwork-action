@@ -28,6 +28,10 @@ and change the permissions to ``permissive``:
    :width: 60%
    :align: center
 
+.. note::
+  You can stay up-to-date with the latest changes to the **showyourwork-action** by
+  looking at its `release notes <https://github.com/showyourwork/showyourwork-action/releases>`_.
+
 Inputs
 ------
 
