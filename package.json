@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "@actions/artifact": "^2.0.0",
-    "@actions/cache": "^1.0.9",
+    "@actions/cache": "^4.0.0",
     "@actions/core": "^1.6.0",
-    "@actions/github": "^5.0.2",
+    "@actions/github": "^6.0.0",
     "shelljs": "^0.8.5"
   }
 }
