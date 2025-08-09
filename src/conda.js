@@ -46,6 +46,11 @@ async function setupConda() {
     );
     exec("bash ./conda.sh -b -p ~/.conda && rm -f ./conda.sh", "Install conda");
     core.startGroup("Configure conda");
+    exec("conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main")
+    exec("conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r")
+    exec("conda config --remove channels defaults")
+    exec("conda config --add channels conda-forge")
+    exec("conda config --set channel_priority strict")
     exec("conda config --add pkgs_dirs ~/conda_pkgs_dir");
     exec("conda install -y python'>=3.11' pip");
     core.endGroup();
