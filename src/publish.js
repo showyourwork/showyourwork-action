@@ -23,7 +23,7 @@ async function publishOutput() {
   }
 
   // Include the DAG?
-  if (config["render_dag"]) {
+  if (config["dag"]["render"]) {
     output.push("dag.pdf");
   }
 
