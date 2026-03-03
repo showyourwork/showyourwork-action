@@ -3,6 +3,7 @@ const core = require("@actions/core");
 const shell = require("shelljs");
 const { DefaultArtifactClient } = require('@actions/artifact')
 const github = require("@actions/github");
+const { exec } = require("./utils");
 
 // Exports
 module.exports = { publishOutput };
@@ -73,7 +74,7 @@ async function publishOutput() {
           `sed -i 's/\\\\RequirePackage\\[normalem\\]{ulem}/\\\\RequirePackage\\[normalem\\]{ulem} \\\\let\\\\oldsout\\\\sout \\\\renewcommand\\\\sout\\[1\\]{\\\\leavevmode\\\\oldsout{#1}}/' tmp.tex`
         );
         shell.exec(`mv tmp.tex src/tex/${config["ms_name"]}.tex`);
-        shell.exec(`showyourwork build`);
+        exec(`showyourwork build`);
         shell.exec(`cp ${config["ms_pdf"]} diff.pdf`);
         shell.exec(`cp .bkup.pdf ${config["ms_pdf"]}`);
         output.push("diff.pdf");
