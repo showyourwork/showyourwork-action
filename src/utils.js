@@ -9,6 +9,7 @@ module.exports = {
   getInputAsArray,
   getCondaInstallationPath,
   getCondaActivationScriptPath,
+  getMinicondaInstallerUrl,
 };
 
 /**
@@ -36,6 +37,21 @@ function getCondaInstallationPath(customPath) {
  */
 function getCondaActivationScriptPath(customPath) {
   return `${getCondaInstallationPath(customPath)}/etc/profile.d/conda.sh`;
+}
+
+/**
+ * Get the Miniconda installer URL matching the current runner architecture.
+ *
+ * GitHub-hosted and self-hosted runners may be x86_64 or arm64/aarch64,
+ * and using the wrong installer binary causes Rosetta errors on Apple Silicon.
+ *
+ * @param {string} [arch] - Optional architecture string. Defaults to the host architecture.
+ * @returns {string} The Miniconda installer URL.
+ */
+function getMinicondaInstallerUrl(arch) {
+  const normalizedArch = (arch ?? process.arch ?? "x64").toLowerCase();
+  const targetArch = normalizedArch.includes("arm") || normalizedArch.includes("aarch") ? "aarch64" : "x86_64";
+  return `https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-${targetArch}.sh`;
 }
 
 /**

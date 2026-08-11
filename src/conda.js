@@ -3,7 +3,12 @@ const core = require("@actions/core");
 const cache = require("@actions/cache");
 const shell = require("shelljs");
 const constants = require("./constants.js");
-const { exec, getCondaActivationScriptPath, getCondaInstallationPath } = require("./utils");
+const {
+  exec,
+  getCondaActivationScriptPath,
+  getCondaInstallationPath,
+  getMinicondaInstallerUrl,
+} = require("./utils");
 
 // Exports
 module.exports = { setupConda };
@@ -41,8 +46,9 @@ async function setupConda() {
 
   // Download and setup conda
   if (!shell.test("-f", getCondaActivationScriptPath(CONDA_INSTALLATION_PATH))) {
+    const minicondaInstallerUrl = getMinicondaInstallerUrl(process.arch);
     exec(
-      "wget --no-verbose https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ./conda.sh",
+      `wget --no-verbose ${minicondaInstallerUrl} -O ./conda.sh`,
       "Download conda"
     );
     exec(`bash ./conda.sh -b -p ${CONDA_INSTALLATION_PATH} && rm -f ./conda.sh`, "Install conda");
