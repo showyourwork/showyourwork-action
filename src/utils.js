@@ -7,7 +7,36 @@ module.exports = {
   makeId,
   exec,
   getInputAsArray,
+  getCondaInstallationPath,
+  getCondaActivationScriptPath,
 };
+
+/**
+ * Get the conda installation path used by the action.
+ *
+ * Users can override the default installation prefix by providing the
+ * ``conda-installation-path`` input.
+ *
+ * @param {string} [customPath] - Optional path override.
+ * @returns {string} The resolved conda installation path.
+ */
+function getCondaInstallationPath(customPath) {
+  const inputPath = customPath ?? core.getInput("conda-installation-path");
+  if (typeof inputPath === "string" && inputPath.trim() !== "") {
+    return inputPath.trim();
+  }
+  return "~/.conda";
+}
+
+/**
+ * Get the activation script for the selected conda installation.
+ *
+ * @param {string} [customPath] - Optional path override.
+ * @returns {string} The path to ``conda.sh``.
+ */
+function getCondaActivationScriptPath(customPath) {
+  return `${getCondaInstallationPath(customPath)}/etc/profile.d/conda.sh`;
+}
 
 /**
  * Generate a random hash.
@@ -52,8 +81,9 @@ function exec_wrapper(cmd, group) {
  *
  */
 function exec(cmd, group) {
-  if (shell.test("-f", "~/.conda/etc/profile.d/conda.sh")) {
-    return exec_wrapper(`. ~/.conda/etc/profile.d/conda.sh && conda activate base && ${cmd}`, group);
+  const condaActivationScriptPath = getCondaActivationScriptPath();
+  if (shell.test("-f", condaActivationScriptPath)) {
+    return exec_wrapper(`. ${condaActivationScriptPath} && conda activate base && ${cmd}`, group);
   } else {
     return exec_wrapper(cmd, group);
   }

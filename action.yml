@@ -10,6 +10,10 @@ inputs:
     description: "Bump this number to reset the conda cache"
     required: false
     default: "0"
+  conda-installation-path:
+    description: "Path to an existing conda installation to reuse on the runner"
+    required: false
+    default: "~/.conda"
   article-cache-number:
     description: "Bump this number to reset the article cache"
     required: false
