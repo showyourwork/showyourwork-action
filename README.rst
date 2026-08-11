@@ -13,6 +13,127 @@ The **showyourwork-action** runs on `GitHub Actions <https://github.com/features
 
 This action is typically called in the workflow files ``.github/workflows/build.yml`` and ``.github/workflows/build-pull-request.yml`` of a `showyourwork <https://github.com/showyourwork/showyourwork>`_ article repository. For more information on GitHub Actions workflow files, see `here <https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions>`_.
 
+Self-hosted runners
+-------------------
+
+.. important:: 
+
+   Using self-hosted runners in public repositories is not recommended.
+   Forks of your public repository can potentially run dangerous code on your self-hosted runner by creating a pull request.
+   Setup your repository settings accordingly to limit who can fork, create PRs and the use of your self-hosted runner to trusted users only.
+
+.. note::
+
+   This is a very first approach to running the **showyourwork-action** on a self-hosted runner. 
+   It is not yet fully tested, and there may be some rough edges.
+   Maybe there is even an easier way to do this that we haven't thought of yet...
+   If you run into issues, please open an issue on `showyourwork-action <https://github.com/showyourwork/showyourwork-action/issues>`_.
+
+The action can also run on a self-hosted runner.
+This is useful when the build needs:
+
+- access to a specific machine or private network,
+- more computing power or time limits than what is available on GitHub-hosted runners,
+- an existing conda installation that is not available on GitHub-hosted runners.
+
+This section describes how to setup your own self-hosted runner using Docker after you created your project with _showyourwork_.
+The choice of Docker is for keeping the runner isolated from the rest of the host system.
+
+.. note::
+
+   Other containerization solutions might also work, but we have not tested them yet.
+
+After you created a project with showyourwork, you can set up a self-hosted runner as follows:
+
+1. Install `Docker <https://www.docker.com/products/docker-desktop/>`_ on the machine that will host the runner.
+   Make sure the Docker daemon is running and that your user can access it.
+
+   .. code-block:: bash
+
+      docker --version
+      docker info
+
+2. Build a runner image from the included ``docker/runner.Dockerfile``.
+
+   .. code-block:: bash
+
+      git clone https://github.com/showyourwork/showyourwork-action.git
+      cd showyourwork-action
+      docker build -f docker/runner.Dockerfile -t local-github-runner .
+
+3. Start the creation of the new self-hosted runner from the GitHub UI of your repository under ``Settings -> Actions -> Runners``,
+   but do not proceed with the registration yet. Instead, copy the command that GitHub provides to register the runner, 
+   which will look something like this:
+
+   .. code-block:: bash
+
+      ./config.sh --url https://github.com/$YOUR_USERNAME/$REPO --token <RUNNER_TOKEN>
+
+4. Start a persistent runner container so it remains associated with the GitHub runner registration.
+
+   The recommended flow is to start the container in detached mode and register it once.
+   The first part of the configuration command is the one you get from the step above.
+   Use the token for this repository and then let the runner keep running in the background.
+
+   .. code-block:: bash
+
+      docker run -d --name github-runner \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v "$PWD":/home/runner/work \
+        -w /home/runner/work \
+        --entrypoint bash \
+        local-github-runner -c 'cd /home/runner && ./config.sh --url https://github.com/$YOUR_USERNAME/$REPO --token <RUNNER_TOKEN> --name local-docker-runner --labels self-hosted,linux,arm64 --unattended && ./run.sh'
+
+  .. note::
+
+     Replace ``arm64`` with the architecture of your runner if it differs (for example, ``x64`` on an x86_64 machine).
+
+   If you need to inspect the container interactively after it has already been configured, you can connect to it later with:
+
+   .. code-block:: bash
+
+      docker exec -it github-runner bash
+
+   or by using the Docker Desktop application.
+
+   
+
+   If you prefer to configure the runner interactively before starting it, do so in a temporary container, but keep the long-lived runner itself as a detached container that is not removed automatically.
+
+5. In the workflow file for the sample project, set ``runs-on: [self-hosted, linux, x64]`` (or the labels you configured when registering the runner). This is the key step that selects the self-hosted machine for the build.
+
+   .. code-block:: yaml
+
+      name: build
+
+      on:
+        push:
+        pull_request:
+
+      jobs:
+        build:
+          runs-on: [self-hosted, linux, x64]
+          steps:
+            - uses: actions/checkout@v4
+            - uses: showyourwork/showyourwork-action@main
+              env:
+                SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}
+                OVERLEAF_TOKEN: ${{ secrets.OVERLEAF_TOKEN }}
+
+6. If the runner host or container already contains conda at a non-standard location, provide that path with the ``conda-installation-path`` input so the action reuses it instead of trying to install a fresh copy in the default location.
+
+   .. code-block:: yaml
+
+      - uses: showyourwork/showyourwork-action@main
+        with:
+          conda-installation-path: /opt/conda
+
+7. Push the workflow and then trigger the build. The GitHub runner will start inside the Docker container, fetch the repository, and execute the action on the self-hosted machine.
+
+8. If the runner is hosted on a remote server rather than a local machine, SSH can be used to provision it and inspect the host, but the workflow still runs through the GitHub Actions runner itself. Docker remains useful on shared machines because it isolates each build from the rest of the host system.
+
+For a real project, this setup can be reused directly on a dedicated self-hosted machine or on an SSH-accessible host. The important point is that the runner is still the GitHub Actions agent; Docker and SSH are only mechanisms for isolating or reaching the execution environment.
+
 When setting up your GitHub repository, ensure that the GitHub Actions permissions for the ``GITHUB_TOKEN``
 secret are set to ``permissive``. First, go to
 
@@ -51,6 +172,11 @@ The **showyourwork-action** accepts any of the following inputs, all of which ar
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Optional** Bump this number to reset the :code:`conda` cache. The behavior is similar to that of ``article-cache-number`` above. Default: :code:`0`. Note that you can disable conda caching by setting this variable to `null` or to an empty value.
+
+:code:`conda-installation-path`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Optional** Path to an existing conda installation to reuse on the runner. This is useful for self-hosted runners that already provide conda at a non-standard location. Default: :code:`~/.conda`.
 
 :code:`github-token`
 ~~~~~~~~~~~~~~~~~~~~
