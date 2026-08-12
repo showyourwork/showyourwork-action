@@ -9,6 +9,7 @@ module.exports = {
   getInputAsArray,
   getCondaInstallationPath,
   getCondaActivationScriptPath,
+  getCondaPythonVersionSpec,
   getMinicondaInstallerUrl,
 };
 
@@ -37,6 +38,18 @@ function getCondaInstallationPath(customPath) {
  */
 function getCondaActivationScriptPath(customPath) {
   return `${getCondaInstallationPath(customPath)}/etc/profile.d/conda.sh`;
+}
+
+/**
+ * Get the supported Python version range for conda envs in this action.
+ *
+ * The showyourwork dependency stack currently fails on Python 3.14 because
+ * ``immutables`` does not ship working wheels for that version yet.
+ *
+ * @returns {string} A conda version specifier compatible with the currently supported stack.
+ */
+function getCondaPythonVersionSpec() {
+  return "python>=3.11,<3.14";
 }
 
 /**

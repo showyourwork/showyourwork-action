@@ -7,6 +7,7 @@ const {
   exec,
   getCondaActivationScriptPath,
   getCondaInstallationPath,
+  getCondaPythonVersionSpec,
   getMinicondaInstallerUrl,
 } = require("./utils");
 
@@ -54,7 +55,7 @@ async function setupConda() {
     exec(`bash ./conda.sh -b -p ${CONDA_INSTALLATION_PATH} && rm -f ./conda.sh`, "Install conda");
     core.startGroup("Configure conda");
     exec("conda config --add pkgs_dirs ~/conda_pkgs_dir");
-    exec("conda install -y python'>=3.11' pip");
+    exec(`conda install -y "${getCondaPythonVersionSpec()}" pip`);
     core.endGroup();
   }
 
