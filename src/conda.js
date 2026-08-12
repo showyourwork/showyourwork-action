@@ -3,7 +3,13 @@ const core = require("@actions/core");
 const cache = require("@actions/cache");
 const shell = require("shelljs");
 const constants = require("./constants.js");
-const { exec } = require("./utils");
+const {
+  exec,
+  getCondaActivationScriptPath,
+  getCondaInstallationPath,
+  getCondaPythonVersionSpec,
+  getMinicondaInstallerUrl,
+} = require("./utils");
 
 // Exports
 module.exports = { setupConda };
@@ -14,7 +20,8 @@ const SHOWYOUWORK_SPEC = core.getInput("showyourwork-spec");
 const RUNNER_OS = shell.env["RUNNER_OS"];
 const conda_key = `conda-${constants.conda_cache_version}-${RUNNER_OS}-${CONDA_CACHE_NUMBER}`;
 const conda_restoreKeys = [];
-const conda_paths = ["~/.conda", "~/.condarc", "~/conda_pkgs_dir"];
+const CONDA_INSTALLATION_PATH = getCondaInstallationPath();
+const conda_paths = [CONDA_INSTALLATION_PATH, "~/.condarc", "~/conda_pkgs_dir"];
 
 // We'll cache the article unless the user set the cache number to `null` (or empty).
 const CACHE_CONDA = (
@@ -39,15 +46,16 @@ async function setupConda() {
   }
 
   // Download and setup conda
-  if (!shell.test("-d", "~/.conda")) {
+  if (!shell.test("-f", getCondaActivationScriptPath(CONDA_INSTALLATION_PATH))) {
+    const minicondaInstallerUrl = getMinicondaInstallerUrl(process.arch);
     exec(
-      "wget --no-verbose https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ./conda.sh", 
+      `wget --no-verbose ${minicondaInstallerUrl} -O ./conda.sh`,
       "Download conda"
     );
-    exec("bash ./conda.sh -b -p ~/.conda && rm -f ./conda.sh", "Install conda");
+    exec(`bash ./conda.sh -b -p ${CONDA_INSTALLATION_PATH} && rm -f ./conda.sh`, "Install conda");
     core.startGroup("Configure conda");
     exec("conda config --add pkgs_dirs ~/conda_pkgs_dir");
-    exec("conda install -y python'>=3.11' pip");
+    exec(`conda install -y "${getCondaPythonVersionSpec()}" pip`);
     core.endGroup();
   }
 
