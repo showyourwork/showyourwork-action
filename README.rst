@@ -36,6 +36,13 @@ This is useful when the build needs:
 - more computing power or time limits than what is available on GitHub-hosted runners,
 - an existing conda installation that is not available on GitHub-hosted runners.
 
+Using Docker
+^^^^^^^^^^^^
+
+This is the recommended way if you have access to a Docker installation on the machine you
+want to use as it provides a true isolated environment for the runner, the conda installation
+and the build output.
+
 This section describes how to setup your own self-hosted runner using Docker after you created your project with _showyourwork_.
 The choice of Docker is for keeping the runner isolated from the rest of the host system.
 
@@ -133,6 +140,32 @@ After you created a project with showyourwork, you can set up a self-hosted runn
 8. If the runner is hosted on a remote server rather than a local machine, SSH can be used to provision it and inspect the host, but the workflow still runs through the GitHub Actions runner itself. Docker remains useful on shared machines because it isolates each build from the rest of the host system.
 
 For a real project, this setup can be reused directly on a dedicated self-hosted machine or on an SSH-accessible host. The important point is that the runner is still the GitHub Actions agent; Docker and SSH are only mechanisms for isolating or reaching the execution environment.
+
+Use runner natively
+^^^^^^^^^^^^^^^^^^^
+
+This is the approach you can use if e.g. you cannot use Docker ir similar solutions or you can
+but for some reason the image does not build or cannot be used properly.
+It is assumed that the machine can connect to GitHub.
+
+1. Go to your project repository under ``Settings -> Actions -> Runners`` and click on ``New self-hosted runner``.
+2. Follow the instructions to download and configure the runner on your machine (in a path you control if it is a shared machine).
+3. Create a new repository variable to store the path to your conda installation within the runner.
+   For example if you installed the runner under /home/me/github_runners/my_runner create a new variable
+   called ``CONDA_INSTALLATION_PATH`` with value ``/home/me/github_runners/my_runner/conda_installation``.
+4. Update your project build workflow files to use this additional variable as input to the action. For example:
+
+   .. code-block:: yaml
+
+      - uses: showyourwork/showyourwork-action@main
+        with:
+          conda-installation-path: ${{ vars.CONDA_INSTALLATION_PATH }}
+
+Please, remember that the labels under the `runs-on` key need to coincide with those you specify
+when registering the runner.
+
+Permissions
+-----------
 
 When setting up your GitHub repository, ensure that the GitHub Actions permissions for the ``GITHUB_TOKEN``
 secret are set to ``permissive``. First, go to
